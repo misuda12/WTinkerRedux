@@ -22,8 +22,48 @@
 
 package eu.warfaremc.tinker
 
+import cloud.commandframework.annotations.AnnotationParser
+import cloud.commandframework.minecraft.extras.MinecraftHelp
+import cloud.commandframework.paper.PaperCommandManager
+import com.google.common.cache.Cache
+import com.google.common.cache.CacheBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
+import mu.KotlinLogging
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.*
+import java.util.concurrent.TimeUnit
 
-class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope()
+@PublishedApi
+internal lateinit var tinker: TinkerRedux
+    private set
+
+@PublishedApi
+internal lateinit var kguava: Cache<Any, Any>
+    private set
+
+class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
+
+    val logger by lazy { KotlinLogging.logger("WTinker") }
+    internal val session = UUID.randomUUID().toString()
+
+    init {
+        tinker = this
+        kguava = CacheBuilder.newBuilder()
+            .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)
+            .build()
+    }
+
+    // Command stuff
+    lateinit var audiences: BukkitAudiences
+    lateinit var commandManager: PaperCommandManager<CommandSender>
+    lateinit var commandAnnotation: AnnotationParser<CommandSender>
+    lateinit var commandHelp: MinecraftHelp<CommandSender>
+
+    override fun onDisable() {  }
+
+}
+
+fun <T> identity(t: T): T = t
