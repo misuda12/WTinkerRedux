@@ -1,0 +1,349 @@
+# Default config
+levels-and-exp:
+  kills:
+    exp-per-kill: 1
+    special-cases:
+      - WITHER:1
+  block-breaks:
+    exp-per-block-break: 1
+    special-cases:
+      - WARPED_FUNGUS:0
+  level-up:
+    max-tool-level: 75
+    exp-for-first-level: 60
+    exp-curve-multiplier: 20.0
+    exp-curve-exponent: 1.42
+    repair-on-level-up: false
+    extra-modifier-chance: 0.3
+    random-bonus-modifier-chance: 0.4
+    material-upgrades:
+      enabled: true
+      material-upgrade-levels:
+        - STONE:10
+        - IRON:25
+        - DIAMOND:45
+modifiers:
+  Auto-Repair:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: VINE
+    max-level: 10
+    max-random-bonus-level: 10
+    mod-identifier: '&2Auto-Repair'
+    allowed-tools:
+      - WOODEN_PICKAXE
+      - STONE_PICKAXE
+      - IRON_PICKAXE
+      - DIAMOND_PICKAXE
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - BOW
+      - WOODEN_SHOVEL
+      - STONE_SHOVEL
+      - IRON_SHOVEL
+      - DIAMOND_SHOVEL
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Bane:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: FERMENTED_SPIDER_EYE
+    max-level: 5
+    max-random-bonus-level: 5
+    mod-identifier: '&eBane'
+    allowed-tools:
+      - BOW
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Soulbound:
+    enabled: true
+    random-bonus: false
+    random-bonus-rarity: 0.0
+    allow-bench: true
+    mod-item: NETHER_STAR
+    max-level: 1
+    max-random-bonus-level: 1
+    mod-identifier: '&dSoulbound'
+    allowed-tools:
+      - WOODEN_PICKAXE
+      - STONE_PICKAXE
+      - IRON_PICKAXE
+      - DIAMOND_PICKAXE
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - BOW
+      - WOODEN_SHOVEL
+      - STONE_SHOVEL
+      - IRON_SHOVEL
+      - DIAMOND_SHOVEL
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Beheading:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: ENDER_PEARL
+    max-level: 4
+    max-random-bonus-level: 4
+    mod-identifier: '&dBeheading'
+    allowed-tools:
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - BOW
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Durability:
+    enabled: false
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: DIAMOND
+    max-level: 10
+    max-random-bonus-level: 10
+    mod-identifier: '&bDurability'
+    allowed-tools:
+      - WOODEN_PICKAXE
+      - STONE_PICKAXE
+      - IRON_PICKAXE
+      - DIAMOND_PICKAXE
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - BOW
+      - WOODEN_SHOVEL
+      - STONE_SHOVEL
+      - IRON_SHOVEL
+      - DIAMOND_SHOVEL
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Efficiency:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: REDSTONE
+    max-level: 10
+    max-random-bonus-level: 5
+    mod-identifier: '&cEfficiency'
+    allowed-tools:
+      - WOODEN_PICKAXE
+      - STONE_PICKAXE
+      - IRON_PICKAXE
+      - DIAMOND_PICKAXE
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - WOODEN_SHOVEL
+      - STONE_SHOVEL
+      - IRON_SHOVEL
+      - DIAMOND_SHOVEL
+  Fiery:
+    enabled: true
+    random-bonus: false
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: BLAZE_POWDER
+    max-level: 1
+    max-random-bonus-level: 1
+    mod-identifier: '&6Fiery'
+    allowed-tools:
+      - WOODEN_PICKAXE
+      - STONE_PICKAXE
+      - IRON_PICKAXE
+      - DIAMOND_PICKAXE
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - BOW
+      - WOODEN_SHOVEL
+      - STONE_SHOVEL
+      - IRON_SHOVEL
+      - DIAMOND_SHOVEL
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Haste:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: GHAST_TEAR
+    max-level: 1
+    max-random-bonus-level: 1
+    mod-identifier: '&4Haste'
+    allowed-tools:
+      - WOODEN_PICKAXE
+      - STONE_PICKAXE
+      - IRON_PICKAXE
+      - DIAMOND_PICKAXE
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - WOODEN_SHOVEL
+      - STONE_SHOVEL
+      - IRON_SHOVEL
+      - DIAMOND_SHOVEL
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Inertia:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: CHORUS_FLOWER
+    max-level: 5
+    max-random-bonus-level: 5
+    mod-identifier: '&6Inertia'
+    allowed-tools:
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Infinity:
+    enabled: true
+    random-bonus: false
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: DRAGON_EGG
+    max-level: 1
+    max-random-bonus-level: 1
+    mod-identifier: '&5Infinity'
+    allowed-tools:
+      - BOW
+  Knockback:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: PISTON
+    max-level: 2
+    max-random-bonus-level: 2
+    mod-identifier: '&7Knockback'
+    allowed-tools:
+      - BOW
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Luck:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: LAPIS_LAZULI
+    max-level: 4
+    max-random-bonus-level: 3
+    mod-identifier: '&9Luck'
+    allowed-tools:
+      - WOODEN_PICKAXE
+      - STONE_PICKAXE
+      - IRON_PICKAXE
+      - DIAMOND_PICKAXE
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - BOW
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Sharpness:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: QUARTZ
+    max-level: 10
+    max-random-bonus-level: 10
+    mod-identifier: '&fSharpness'
+    allowed-tools:
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - BOW
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Silky:
+    enabled: true
+    random-bonus: false
+    random-bonus-rarity: 0.0
+    allow-bench: true
+    mod-item: YELLOW_DYE
+    max-level: 1
+    max-random-bonus-level: 1
+    mod-identifier: '&eSilky'
+    allowed-tools:
+      - WOODEN_PICKAXE
+      - STONE_PICKAXE
+      - IRON_PICKAXE
+      - DIAMOND_PICKAXE
+      - WOODEN_AXE
+      - STONE_AXE
+      - IRON_AXE
+      - DIAMOND_AXE
+      - WOODEN_SHOVEL
+      - STONE_SHOVEL
+      - IRON_SHOVEL
+      - DIAMOND_SHOVEL
+  Life-Steal:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: WITHER_SKELETON_SKULL
+    max-level: 10
+    max-random-bonus-level: 10
+    mod-identifier: '&8Life-Steal'
+    allowed-tools:
+      - BOW
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
+  Smite:
+    enabled: true
+    random-bonus: true
+    random-bonus-rarity: 1.0
+    allow-bench: true
+    mod-item: PODZOL
+    max-level: 5
+    max-random-bonus-level: 5
+    mod-identifier: '&a&5Smite'
+    allowed-tools:
+      - BOW
+      - WOODEN_SWORD
+      - STONE_SWORD
+      - IRON_SWORD
+      - DIAMOND_SWORD
