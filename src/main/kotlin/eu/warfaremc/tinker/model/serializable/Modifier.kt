@@ -20,7 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package eu.warfaremc.tinker.configuration
+package eu.warfaremc.tinker.model.serializable
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.SerialName
