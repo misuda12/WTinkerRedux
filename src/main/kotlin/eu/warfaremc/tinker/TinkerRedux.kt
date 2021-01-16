@@ -22,7 +22,8 @@
 
 package eu.warfaremc.tinker
 
-import cloud.commandframework.annotations.AnnotationParser
+import cloud.commandframework.annotations.*
+import cloud.commandframework.annotations.specifier.Greedy
 import cloud.commandframework.minecraft.extras.MinecraftHelp
 import cloud.commandframework.paper.PaperCommandManager
 import com.google.common.cache.Cache
@@ -33,7 +34,10 @@ import kotlinx.coroutines.MainScope
 import mu.KotlinLogging
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -74,6 +78,54 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
 
     override fun onDisable() {  }
 
+    @CommandMethod("tt")
+    @CommandDescription("Basic set of commands for WTinkerRedux")
+    fun command(
+        sender: Player
+    ) {
+        commandHelp.queryCommands("", sender)
+    }
+
+    @CommandMethod("tt help [query]")
+    @CommandDescription("Shows commands of WTinkerRedux")
+    fun commandHelp(
+        sender: Player,
+        @Nullable @Argument("query") @Greedy query: String?
+    ) {
+        commandHelp.queryCommands(query ?: "", sender)
+    }
+
+    @CommandMethod("tt give <player> <name>")
+    @CommandDescription("Gives you usable tinker tool")
+    @CommandPermission("tinkertools.admin")
+    fun commandGive(
+        sender: Player,
+        @NotNull @Argument("player") player: Player,
+        @NotNull @Argument("name") name: String
+    ) { TODO() }
+
+    @CommandMethod("tt name <name>")
+    @CommandDescription("Renames current holding tinker tool")
+    @CommandPermission("tinkertools.name")
+    fun commandName(
+        sender: Player,
+        @NotNull @Argument("name") name: String
+    ) { TODO() }
+
+    @CommandMethod("tt addexp <amount>")
+    @CommandDescription("Adds more exp to tinker tool")
+    @CommandPermission("tinkertools.admin")
+    fun commandAddExp(
+        sender: Player,
+        @NotNull @Argument("amount") name: Int
+    ) { TODO() }
+
+    @CommandMethod("tt reload")
+    @CommandDescription("Reloads WTinkerRedux")
+    @CommandPermission("tinkertools.admin")
+    fun commandReload(
+        sender: Player
+    ) { TODO() }
 }
 
 fun <T> identity(t: T): T = t

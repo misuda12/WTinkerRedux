@@ -121,6 +121,7 @@ shadowJar {
     relocate "cloud.commandframework", "shadow.commands"
     relocate "net.kyori", "shadow.adventures"
     relocate "lombok", "shadow.lombok"
+    relocate "com.zwitserloot", "shadow.zwitserloot"
 
     manifest {
         attributes(
