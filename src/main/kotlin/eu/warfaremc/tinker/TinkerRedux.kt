@@ -27,6 +27,7 @@ import cloud.commandframework.minecraft.extras.MinecraftHelp
 import cloud.commandframework.paper.PaperCommandManager
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import mu.KotlinLogging
@@ -48,6 +49,15 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WTinker") }
     internal val session = UUID.randomUUID().toString()
+
+    @PublishedApi
+    internal var slimefun = object : SlimefunAddon {
+        override fun getJavaPlugin(): JavaPlugin
+            = this@TinkerRedux
+
+        override fun getBugTrackerURL(): String
+            = "https://github.com/misuda12/WTinkerRedux/issues"
+    }
 
     init {
         tinker = this
