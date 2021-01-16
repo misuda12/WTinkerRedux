@@ -34,6 +34,11 @@ class TinkerTool private constructor(val item: ItemStack) {
             return repairMat == type
         }
 
+        @JvmStatic
+        fun repair(tool: TinkerTool) {
+            TODO()
+        }
+
 
         fun fixLegacy(item: ItemStack): ItemStack? {
             TODO()
