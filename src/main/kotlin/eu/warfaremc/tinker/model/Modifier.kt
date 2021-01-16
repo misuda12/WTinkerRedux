@@ -26,6 +26,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.io.Serializable
+import java.util.*
 
 data class Modifier(
     val name: String,
@@ -53,9 +54,8 @@ data class Modifier(
         }
 
         @JvmStatic
-        fun getAllEnabled(): List<Modifier> {
-            return getAll().filter { it.enabled }
-        }
+        fun getAllEnabled(): List<Modifier>
+            = getAll().filter { it.enabled }
 
         @JvmStatic
         fun getAllEnabledBench(item: ItemStack?): List<Modifier> {
@@ -79,6 +79,7 @@ data class Modifier(
             TODO()
         }
 
+        @JvmStatic
         fun addRandomModifier(player: Player?, item: ItemStack?) {
             if (player == null || item == null)
                 return
@@ -86,8 +87,16 @@ data class Modifier(
             if (modifiers.isEmpty())
                 return
             val chances = hashMapOf<Modifier, Double>()
-            var current = 0.0
-            modifiers.forEach {  }
+            var next = 0.0
+            val prev = 0.0
+            modifiers.forEach { next += it.rarity; chances[it] = next }
+            val random = Random().nextDouble() * next
+            modifiers.forEach {
+                if (random > prev && random <= chances[it]!!) {
+                    addModifier(player, item, it.lore, false)
+                    return
+                }
+            }
         }
 
         @JvmStatic
@@ -100,6 +109,5 @@ data class Modifier(
         @JvmStatic
         fun getByLore(lore: String?): Modifier?
             = getAll().find { it.lore == lore }
-
     }
 }
