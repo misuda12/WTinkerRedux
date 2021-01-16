@@ -10,6 +10,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
         classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
@@ -27,8 +28,11 @@ plugins {
 
     // Kotlin
     id 'org.jetbrains.kotlin.jvm'  version '1.4.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
 }
 
+apply plugin: 'kotlin'
+apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group 'eu.warfaremc.tinker'
@@ -57,6 +61,10 @@ dependencies {
     // Logging
     implementation 'io.github.microutils:kotlin-logging:1.12.0'
 
+    // Serialization
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
+
     // Commands
     implementation 'cloud.commandframework:cloud-paper:1.4.0'
     implementation 'cloud.commandframework:cloud-annotations:1.4.0'
@@ -70,6 +78,9 @@ dependencies {
 
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.4.1'
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1'
+
+    // https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine
+    compile group: 'org.snakeyaml', name: 'snakeyaml-engine', version: '2.2.1'
     // https://mvnrepository.com/artifact/commons-io/commons-io
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
 

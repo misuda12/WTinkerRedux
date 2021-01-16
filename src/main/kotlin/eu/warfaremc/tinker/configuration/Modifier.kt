@@ -20,27 +20,49 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package eu.warfaremc.tinker.model
+package eu.warfaremc.tinker.configuration
 
+import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import java.io.Serializable
 import java.util.*
 
+@Serializable
 data class Modifier(
-    val name: String,
-    val lore: String,
+    @SerialName("enabled")
+    @SerializedName("enabled")
+    val enabled: Boolean,
+    @SerialName("random-bonus")
+    @SerializedName("random-bonus")
+    val randomBonus: Boolean,
+    @SerialName("random-bonus-rarity")
+    @SerializedName("random-bonus-rarity")
+    val randomBonusRarity: Double,
+    @SerialName("allow-bench")
+    @SerializedName("allow-bench")
+    val allowBench: Boolean,
+    @SerialName("mod-item")
+    @SerializedName("mod-item")
+    val material: Material,
+    @SerialName("max-level")
+    @SerializedName("max-level")
     val maxLevel: Int,
-    val maxRandomLevel: Int,
-    val minLevel: Int = 0,
-    val rarity: Double = 0.0,
-    val item: ItemStack,
-    val materials: List<Material> = emptyList(),
-    var enabled: Boolean,
-    var randomBonus: Boolean,
-    var allowBench: Boolean
-) : Serializable {
+    @SerialName("max-random-bonus-level")
+    @SerializedName("max-random-bonus-level")
+    val maxRandomBonusLevel: Int,
+    @SerialName("mod-identifier")
+    @SerializedName("mod-identifier")
+    val identifier: String,
+    @SerialName("allowed-tools")
+    @SerializedName("allowed-tools")
+    val allowedTools: List<Material>
+) : java.io.Serializable {
+
+    var lore: String? = null
+
     companion object {
 
         @JvmStatic
@@ -55,7 +77,7 @@ data class Modifier(
 
         @JvmStatic
         fun getAllEnabled(): List<Modifier>
-            = getAll().filter { it.enabled }
+                = getAll().filter { it.enabled }
 
         @JvmStatic
         fun getAllEnabledBench(item: ItemStack?): List<Modifier> {
@@ -89,7 +111,7 @@ data class Modifier(
             val chances = hashMapOf<Modifier, Double>()
             var next = 0.0
             val prev = 0.0
-            modifiers.forEach { next += it.rarity; chances[it] = next }
+            modifiers.forEach { next += it.randomBonusRarity; chances[it] = next }
             val random = Random().nextDouble() * next
             modifiers.forEach {
                 if (random > prev && random <= chances[it]!!) {
@@ -108,6 +130,6 @@ data class Modifier(
 
         @JvmStatic
         fun getByLore(lore: String?): Modifier?
-            = getAll().find { it.lore == lore }
+                = getAll().find { it.lore == lore }
     }
 }
