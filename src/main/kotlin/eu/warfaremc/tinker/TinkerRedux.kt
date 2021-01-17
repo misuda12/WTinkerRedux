@@ -35,6 +35,8 @@ import mu.KotlinLogging
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.inventory.Recipe
+import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -52,6 +54,8 @@ internal lateinit var kguava: Cache<Any, Any>
 class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WTinker") }
+    lateinit var recipes: List<ShapedRecipe> //TODO() load recipes
+
     internal val session = UUID.randomUUID().toString()
 
     @PublishedApi
@@ -76,13 +80,11 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
     lateinit var commandAnnotation: AnnotationParser<CommandSender>
     lateinit var commandHelp: MinecraftHelp<CommandSender>
 
-    override fun onEnable() {
+    override fun onLoad() {}
 
-    }
+    override fun onEnable() {}
 
-    override fun onDisable() {
-
-    }
+    override fun onDisable() {  }
 
     @CommandMethod("tt")
     @CommandDescription("Basic set of commands for WTinkerRedux")
