@@ -76,7 +76,13 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
     lateinit var commandAnnotation: AnnotationParser<CommandSender>
     lateinit var commandHelp: MinecraftHelp<CommandSender>
 
-    override fun onDisable() {  }
+    override fun onEnable() {
+
+    }
+
+    override fun onDisable() {
+
+    }
 
     @CommandMethod("tt")
     @CommandDescription("Basic set of commands for WTinkerRedux")
