@@ -29,6 +29,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Config(
+    @SerialName("levels-and-exp")
+    @SerializedName("levels-and-exp")
+    val levelsAndExp: LevelsAndExp,
     @SerialName("modifiers")
     @SerializedName("modifiers")
     val modifiers: Map<String, Modifier>

@@ -108,6 +108,7 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
             return
         }
         val configuration = Yaml.default.decodeFromString(Config.serializer(), config.saveToString())
+        logger.info { configuration.toString() }
         val executionCoordinatorFunction =
             AsynchronousCommandExecutionCoordinator.newBuilder<CommandSender>()
                 .withSynchronousParsing()
