@@ -23,7 +23,6 @@
 package eu.warfaremc.tinker.model.extension
 
 import org.bukkit.Material
-import org.bukkit.block.Block
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 
@@ -37,6 +36,13 @@ inline fun <reified T : ItemMeta> ItemStack.meta(body: T.() -> Unit) {
     val newMeta = itemMeta(type, body)
     itemMeta = newMeta
 }
+
+fun ItemStack.isOfType(type: String?): Boolean {
+    if(type == null)
+        return false
+    return this.type.name.contains("_${type.toUpperCase()}")
+}
+
 
 inline fun ItemStack.enchant(unsafe: Boolean = false, body: EnchantmentExtension.() -> Unit) {
     val addMethod = if (unsafe) ::addUnsafeEnchantment else ::addEnchantment

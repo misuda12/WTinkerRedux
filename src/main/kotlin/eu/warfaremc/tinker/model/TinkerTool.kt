@@ -1,26 +1,33 @@
 package eu.warfaremc.tinker.model
 
-import eu.warfaremc.tinker.model.extension.intValue
+import eu.warfaremc.tinker.model.extension.isOfType
 import eu.warfaremc.tinker.model.extension.meta
 import eu.warfaremc.tinker.model.extension.stringLore
 import eu.warfaremc.tinker.tinker
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.Sound
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.SmithingInventory
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
+import java.nio.BufferUnderflowException
+import java.nio.ByteBuffer
 import java.text.MessageFormat
+import java.util.*
 
-class TinkerTool constructor(val item: ItemStack) : Listener {
+class TinkerTool constructor(val item: ItemStack) {
     companion object {
         private const val LEGACY_TOOL_IDENTIFIER = "&dTinker Tool"
         private const val LEGACY_BROKEN_TOOL_IDENTIFIER = "&4BROKEN TOOL"
@@ -90,49 +97,86 @@ class TinkerTool constructor(val item: ItemStack) : Listener {
 
     }
 
+    var uuid: UUID
+        private set
+
+    var broken: Boolean = false
+        get() = if(durability < 0) false else durability - wear <= 0
+        private set
+
     var experience: Int
-        get() = this.get("experience", PersistentDataType.INTEGER) ?: 0
-        set(value) = this.set("experience", PersistentDataType.INTEGER, value).also { update() }
+        get() = this.get("experience") as Int
+        set(value) = this.set("experience", value).also { update() }
+
+    var durability: Int = -1
 
     var wear: Int
-        get() = this.get("durability", PersistentDataType.INTEGER) ?: 0
-        set(value) = this.set("durability", PersistentDataType.INTEGER, value).also { update() }
+        get() = this.get("durability") as Int
+        set(value) = this.set("durability", value).also { update() }
 
     var level: Int
-        get() = this.get("level", PersistentDataType.INTEGER) ?: 0
-        set(value) = this.set("level", PersistentDataType.INTEGER, value).also { update() }
+        get() = this.get("level") as Int ?: 0
+        set(value) = this.set("level", value).also { update() }
 
     var modificationSpace: Int
-        get() = this.get("modificationSpace", PersistentDataType.INTEGER) ?: 0
-        set(value) = this.set("modificationSpace", PersistentDataType.INTEGER, value).also { update() }
+        get() = this.get("modificationSpace") as Int
+        set(value) = this.set("modificationSpace", value).also { update() }
 
     var renamed: Boolean
-        get() = (this.get("renamed", PersistentDataType.INTEGER) ?: 0) > 0
-        set(value) = this.set("renamed", PersistentDataType.INTEGER, value.intValue).also { update() }
+        get() = this.get("renamed") as Boolean
+        set(value) = this.set("renamed", value).also { update() }
 
 
     init {
         item.meta<ItemMeta> {
             isUnbreakable = true
         }
-        Bukkit.getPluginManager().registerEvents(this, tinker)
+        durability = item.type.maxDurability.toInt()
+        uuid = item.itemMeta!!.persistentDataContainer.get(NamespacedKey(tinker, "uuid"), PersistentDataType.BYTE_ARRAY).let {
+            try {
+                val buffer = ByteBuffer.wrap(it)
+                UUID(buffer.long, buffer.long)
+            } catch (exception: BufferUnderflowException) {
+                UUID.randomUUID()
+            }
+        }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    fun BlockBreakEvent.handle() {
-        if (player.inventory.itemInMainHand != item)
-            return //TODO("item in off hand fix")
-
-        if (block.type.hardness == 0f)
-            return
-        //TODO("Special exp cases")
-
-        TinkerTool.of(player.inventory.itemInMainHand).apply { wear += 1 } ?: return
+    fun repair() {
+        wear = 0
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+     private fun update() {
+        if (wear >= item.type.maxDurability)
+            TODO("break")
+
+        if (this.item.hasItemMeta())
+            this.item.itemMeta!!.stringLore =
+                MessageFormat.format(
+                    TinkerTool.LORE_PATTERN,
+                    TinkerTool.levelDescription(level),
+                    experience,
+                    modificationSpace,
+                    "$wear / {${item.type.maxDurability}}"
+                ) //TODO add modification
+    }
+
+    private fun get(key: String?): Any? {
+        TODO("Rework")
+    }
+
+    private fun set(key: String?, value: Any?) {
+        TODO("Rework")
+    }
+}
+
+class TinkerToolEventHandler : Listener {
+    companion object {
+        fun initHandler() = Bukkit.getPluginManager().registerEvents(TinkerToolEventHandler(), tinker)
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun PlayerInteractEvent.handle() {
-        /*
         if (action == Action.RIGHT_CLICK_BLOCK)
             if (item != null)
                 if (clickedBlock != null)
@@ -157,8 +201,6 @@ class TinkerTool constructor(val item: ItemStack) : Listener {
                                 }
                             }
                         }
-
-         */
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -170,43 +212,49 @@ class TinkerTool constructor(val item: ItemStack) : Listener {
             }
     }
 
-    fun repair() {
-        wear = 0
-    }
 
-    private fun update() {
-        if (wear >= item.type.maxDurability)
-            TODO("break")
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    fun BlockBreakEvent.handle() {
+        isCancelled = handleCommonToolInteraction(player)
 
-        if (this.item.hasItemMeta())
-            this.item.itemMeta!!.stringLore =
-                MessageFormat.format(
-                    TinkerTool.LORE_PATTERN,
-                    TinkerTool.levelDescription(level),
-                    experience,
-                    modificationSpace,
-                    "$wear / {${item.type.maxDurability}}"
-                ) //TODO add modification
-    }
-
-    //TODO Rework
-    private fun <T, Z> get(key: String?, type: PersistentDataType<T, Z>): Z? {
-        if (key == null)
-            return null
-        if (!this.item.hasItemMeta())
-            return null
-
-        return this.item.itemMeta!!.persistentDataContainer.get(NamespacedKey(tinker, key), type)
-    }
-
-    //TODO Rework
-    private fun <T, Z> set(key: String?, type: PersistentDataType<T, Z>, value: Z) {
-        if (key == null)
-            return
-        if (!this.item.hasItemMeta())
+        if(isCancelled)
             return
 
-        this.item.itemMeta!!.persistentDataContainer.set(NamespacedKey(tinker, key), type, value)
+        if (TinkerTool.isTinkerTool(player.inventory.itemInMainHand))
+            return //TODO("item in off hand fix")
+
+        if (block.type.hardness == 0f)
+            return
+        //TODO("Special exp cases")
+
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    fun EntityShootBowEvent.handle() {
+        if(entity is Player)
+            isCancelled = handleCommonToolInteraction(entity as Player)
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    fun EntityDamageByEntityEvent.handle() {
+        if(damager is Player)
+            isCancelled = handleCommonToolInteraction(damager as Player)
+    }
+
+    private fun handleCommonToolInteraction(player: Player): Boolean {
+        val tool = TinkerTool.of(player.inventory.itemInMainHand) ?: return false
+
+        if (tool.broken) {
+            player.sendMessage("§cTento item je rozbitý! Oprav ho v Tinker Tablu.")
+            return true
+        }
+        tool.wear += 1
+
+       if(tool.broken)
+           player.sendMessage("§cItem se rozbil.")
+
+       player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 1f, 1f)
+       return false
+    }
 }

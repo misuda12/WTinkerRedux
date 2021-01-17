@@ -34,6 +34,7 @@ import cloud.commandframework.paper.PaperCommandManager
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import eu.warfaremc.common.yaml.Yaml
+import eu.warfaremc.tinker.model.TinkerToolEventHandler
 import eu.warfaremc.tinker.model.extension.item
 import eu.warfaremc.tinker.model.extension.meta
 import eu.warfaremc.tinker.model.extension.name
@@ -142,6 +143,8 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
             commandAnnotation.parse(this)
             logger.info { "Successfully installed CommandFramework Cloud 1.4" }
         }
+
+        TinkerToolEventHandler.initHandler()
     }
 
     override fun onDisable() {  }
