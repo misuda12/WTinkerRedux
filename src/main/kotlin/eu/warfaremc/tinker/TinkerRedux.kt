@@ -24,18 +24,32 @@ package eu.warfaremc.tinker
 
 import cloud.commandframework.annotations.*
 import cloud.commandframework.annotations.specifier.Greedy
+import cloud.commandframework.arguments.parser.ParserParameters
+import cloud.commandframework.arguments.parser.StandardParameters
+import cloud.commandframework.bukkit.CloudBukkitCapabilities
+import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
+import cloud.commandframework.meta.CommandMeta
 import cloud.commandframework.minecraft.extras.MinecraftHelp
 import cloud.commandframework.paper.PaperCommandManager
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import eu.warfaremc.common.yaml.Yaml
+import eu.warfaremc.tinker.model.extension.item
+import eu.warfaremc.tinker.model.extension.meta
+import eu.warfaremc.tinker.model.extension.name
+import eu.warfaremc.tinker.model.extension.stringLore
+import eu.warfaremc.tinker.model.serializable.Config
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import mu.KotlinLogging
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
+import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
@@ -68,13 +82,11 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
         override fun getBugTrackerURL(): String
             = "https://github.com/misuda12/WTinkerRedux/issues"
     }
-
     init {
         tinker = this
         kguava = CacheBuilder.newBuilder()
             .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)
             .build()
-        TODO("Recipe loading formula")
     }
 
     // Command stuff
@@ -83,9 +95,54 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
     lateinit var commandAnnotation: AnnotationParser<CommandSender>
     lateinit var commandHelp: MinecraftHelp<CommandSender>
 
-    override fun onLoad() {}
-
-    override fun onEnable() {}
+    override fun onEnable() {
+        if (dataFolder.exists() == false)
+        dataFolder.mkdirs().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
+        saveDefaultConfig()
+        config.options().copyDefaults(true)
+        saveConfig()
+        if (server.pluginManager.isPluginEnabled("Slimefun") == false) {
+            server.pluginManager.disablePlugin(this)
+            logger.error { "Slimefun has not been loaded properly, plugin is disabling ..." }
+            return
+        }
+        val configuration = Yaml.default.decodeFromString(Config.serializer(), config.saveToString())
+        val executionCoordinatorFunction =
+            AsynchronousCommandExecutionCoordinator.newBuilder<CommandSender>()
+                .withSynchronousParsing()
+                .build()
+        try {
+            commandManager = PaperCommandManager(
+                this,
+                executionCoordinatorFunction,
+                ::identity,
+                ::identity
+            )
+        } catch (exception: Exception) {
+            logger.error { "Failed to initialize CommandFramework::CommandManager" }
+        }
+        finally {
+            audiences = BukkitAudiences.create(this)
+            commandHelp = MinecraftHelp("/prestige help", audiences::sender, commandManager)
+            if (commandManager.queryCapability(CloudBukkitCapabilities.BRIGADIER))
+                commandManager.registerBrigadier()
+            if (commandManager.queryCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION))
+                commandManager.registerAsynchronousCompletions()
+            val commandMetaFunction: java.util.function.Function<ParserParameters, CommandMeta> =
+                java.util.function.Function<ParserParameters, CommandMeta> { parser ->
+                    CommandMeta.simple()
+                        .with(CommandMeta.DESCRIPTION, parser.get(StandardParameters.DESCRIPTION, "No description"))
+                        .build()
+                }
+            commandAnnotation = AnnotationParser(
+                commandManager,
+                CommandSender::class.java,
+                commandMetaFunction
+            )
+            commandAnnotation.parse(this)
+            logger.info { "Successfully installed CommandFramework Cloud 1.4" }
+        }
+    }
 
     override fun onDisable() {  }
 
@@ -106,14 +163,28 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
         commandHelp.queryCommands(query ?: "", sender)
     }
 
-    @CommandMethod("tt give <player> <name>")
+    @CommandMethod("tt give <player> <material>")
     @CommandDescription("Gives you usable tinker tool")
     @CommandPermission("tinkertools.admin")
     fun commandGive(
         sender: Player,
         @NotNull @Argument("player") player: Player,
-        @NotNull @Argument("name") name: String
-    ) { TODO() }
+        @NotNull @Argument("material") material: Material
+    ) {
+        val tool = item(material) {
+            meta<ItemMeta> {
+                name = "§f" + TODO("toProperCase")
+                stringLore = """
+                    
+                """.trimIndent()
+            }
+        }
+        val leftOver = hashMapOf<Int, ItemStack>()
+        leftOver.putAll(player.inventory.addItem(tool))
+        if (leftOver.isNotEmpty())
+            player.world.dropItem(player.location, tool)
+        sender.sendMessage("")
+    }
 
     @CommandMethod("tt name <name>")
     @CommandDescription("Renames current holding tinker tool")

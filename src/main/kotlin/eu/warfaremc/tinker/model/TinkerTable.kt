@@ -1,7 +1,5 @@
 package eu.warfaremc.tinker.model
 
-import eu.warfaremc.tinker.miscellaneous.EffectTypes
-import eu.warfaremc.tinker.miscellaneous.checkRecipe
 import eu.warfaremc.tinker.miscellaneous.playEffect
 import eu.warfaremc.tinker.tinker
 import io.github.thebusybiscuit.slimefun4.core.multiblocks.MultiBlockMachine
@@ -9,7 +7,6 @@ import me.mrCookieSlime.Slimefun.Objects.Category
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem
 import me.mrCookieSlime.Slimefun.api.Slimefun
 import me.mrCookieSlime.Slimefun.api.SlimefunItemStack
-import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.Dispenser
@@ -43,7 +40,7 @@ class TinkerTable(
                     val tool = TinkerTool.of(inventory.contents[0]) ?: return
                     if(TinkerTool.isRepairMaterial(tool, inventory.contents[1].type)) {
                         tool.repair()
-                        playEffect(EffectTypes.REPAIR, player, block)
+                        playEffect(player, block)
                     } else {
                         if((tool.modificationSpace ?: 0) > 0) {
                             player.sendMessage("added mod") // remove with finished todo
@@ -56,16 +53,16 @@ class TinkerTable(
             }
 
             var recipe: ShapedRecipe? = null
-
+/*
             tinker.recipes.forEach {
                 if(checkRecipe(it, inventory)) {
                     recipe = it
                     return
                 }
             }
-
+*/
             if(recipe != null) {
-                playEffect(EffectTypes.CRAFT, player, block)
+                playEffect(player, block)
                 // Replace all itemstacks in dispenser inventory with the same itemstacks with one less item, or null if amount is 1
                 inventory.forEachIndexed { index, itemStack ->
                     if(itemStack == null)

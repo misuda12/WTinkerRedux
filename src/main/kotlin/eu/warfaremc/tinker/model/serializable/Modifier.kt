@@ -23,6 +23,7 @@
 package eu.warfaremc.tinker.model.serializable
 
 import com.google.gson.annotations.SerializedName
+import eu.warfaremc.tinker.model.TinkerTool
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bukkit.Material
@@ -126,11 +127,12 @@ data class Modifier(
         fun addBenchModifier(player: Player?, item: ItemStack?, name: String?) {
             if (player == null || item == null || name == null)
                 return
+            val tool = TinkerTool(item)
             TODO()
         }
 
         @JvmStatic
-        fun getByLore(lore: String?): Modifier?
+        fun getModifierFromLore(lore: String?): Modifier?
                 = getAll().find { it.lore == lore }
     }
 }

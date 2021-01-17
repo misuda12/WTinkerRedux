@@ -1,7 +1,6 @@
 package eu.warfaremc.tinker.model
 
 import eu.warfaremc.tinker.model.extension.intValue
-import eu.warfaremc.tinker.model.extension.isOfType
 import eu.warfaremc.tinker.model.extension.meta
 import eu.warfaremc.tinker.model.extension.stringLore
 import eu.warfaremc.tinker.tinker
@@ -21,7 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import java.text.MessageFormat
 
-class TinkerTool private constructor(val item: ItemStack) : Listener {
+class TinkerTool constructor(val item: ItemStack) : Listener {
     companion object {
         private const val LEGACY_TOOL_IDENTIFIER = "&dTinker Tool"
         private const val LEGACY_BROKEN_TOOL_IDENTIFIER = "&4BROKEN TOOL"
@@ -133,6 +132,7 @@ class TinkerTool private constructor(val item: ItemStack) : Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun PlayerInteractEvent.handle() {
+        /*
         if (action == Action.RIGHT_CLICK_BLOCK)
             if (item != null)
                 if (clickedBlock != null)
@@ -157,6 +157,8 @@ class TinkerTool private constructor(val item: ItemStack) : Listener {
                                 }
                             }
                         }
+
+         */
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

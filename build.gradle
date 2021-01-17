@@ -39,8 +39,8 @@ group 'eu.warfaremc.tinker'
 version '1.0-SNAPSHOT'
 description = 'Slimefun4 extension plugin used by @WarfareMC'
 
-sourceCompatibility = 1.11
-java.sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = 1.8
+java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
