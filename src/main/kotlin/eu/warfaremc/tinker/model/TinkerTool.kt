@@ -29,15 +29,15 @@ import java.util.*
 
 class TinkerTool constructor(val item: ItemStack) {
     companion object {
-        private const val LEGACY_TOOL_IDENTIFIER = "&dTinker Tool"
-        private const val LEGACY_BROKEN_TOOL_IDENTIFIER = "&4BROKEN TOOL"
+        private const val LEGACY_TOOL_IDENTIFIER = "&dTinker Tool" //TODO read from config
+        private const val LEGACY_BROKEN_TOOL_IDENTIFIER = "&4BROKEN TOOL"//TODO read from config
         private const val LORE_PATTERN = """
                     §7Skill Level: {0}\n
                     §7Exp: {1}\n
                     §7Zbývá modifierů: {2}\n
                     §7Durabilita: {3}\n
                     §7Modifiery: {4}\n
-        """
+        """ //TODO read from config
 
         @JvmStatic
         fun levelDescription(level: Int): String? {
@@ -75,9 +75,10 @@ class TinkerTool constructor(val item: ItemStack) {
 
         @JvmStatic
         fun isLegacy(item: ItemStack): Boolean {
-            return if (item.hasItemMeta() && item.itemMeta!!.hasLore())
-                item.itemMeta!!.lore!![0].contains(LEGACY_TOOL_IDENTIFIER) ||
-                        item.itemMeta!!.lore!![0].contains(LEGACY_BROKEN_TOOL_IDENTIFIER)
+            return if (item.hasItemMeta() && item.itemMeta!!.hasLore()) (
+                item.itemMeta!!.lore!![0].contains(LEGACY_TOOL_IDENTIFIER) || item.itemMeta!!.lore!![0].contains(LEGACY_BROKEN_TOOL_IDENTIFIER)
+                )
+                    && !item.itemMeta!!.persistentDataContainer.has(NamespacedKey(tinker, "uuid"), PersistentDataType.BYTE_ARRAY)
             else
                 false
         }
@@ -100,6 +101,10 @@ class TinkerTool constructor(val item: ItemStack) {
     var uuid: UUID
         private set
 
+
+    var durability: Int = -1
+
+
     var broken: Boolean = false
         get() = if(durability < 0) false else durability - wear <= 0
         private set
@@ -107,8 +112,6 @@ class TinkerTool constructor(val item: ItemStack) {
     var experience: Int
         get() = this.get("experience") as Int
         set(value) = this.set("experience", value).also { update() }
-
-    var durability: Int = -1
 
     var wear: Int
         get() = this.get("durability") as Int
@@ -143,12 +146,18 @@ class TinkerTool constructor(val item: ItemStack) {
     }
 
     fun repair() {
-        wear = 0
+        this.apply {
+            wear = 0
+            update()
+        }
     }
 
      private fun update() {
-        if (wear >= item.type.maxDurability)
-            TODO("break")
+        if (broken)
+            this.item.itemMeta.also {
+                arrayListOf("&4BROKEN TOOL") + it //TODO read from config
+            }
+
 
         if (this.item.hasItemMeta())
             this.item.itemMeta!!.stringLore =
@@ -208,7 +217,7 @@ class TinkerToolEventHandler : Listener {
         if (clickedInventory is SmithingInventory)
             if (TinkerTool.isTinkerTool(cursor)) {
                 isCancelled = true
-                whoClicked.sendMessage("§cTuto akci nelze provádět s Tinker Toolem.")
+                whoClicked.sendMessage("§cTuto akci nelze provádět s Tinker Toolem.") //TODO read from config
             }
     }
 
@@ -246,13 +255,13 @@ class TinkerToolEventHandler : Listener {
         val tool = TinkerTool.of(player.inventory.itemInMainHand) ?: return false
 
         if (tool.broken) {
-            player.sendMessage("§cTento item je rozbitý! Oprav ho v Tinker Tablu.")
+            player.sendMessage("§cTento item je rozbitý! Oprav ho v Tinker Tablu.") //TODO read from config
             return true
         }
         tool.wear += 1
 
        if(tool.broken)
-           player.sendMessage("§cItem se rozbil.")
+           player.sendMessage("§cItem se rozbil.") //TODO read from config
 
        player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 1f, 1f)
        return false
