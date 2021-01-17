@@ -35,7 +35,6 @@ import mu.KotlinLogging
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.NotNull
@@ -51,10 +50,13 @@ internal lateinit var tinker: TinkerRedux
 internal lateinit var kguava: Cache<Any, Any>
     private set
 
+@PublishedApi
+internal lateinit var recipe: List<ShapedRecipe>
+    private set
+
 class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WTinker") }
-    lateinit var recipes: List<ShapedRecipe> //TODO() load recipes
 
     internal val session = UUID.randomUUID().toString()
 
@@ -72,6 +74,7 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
         kguava = CacheBuilder.newBuilder()
             .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)
             .build()
+        TODO("Recipe loading formula")
     }
 
     // Command stuff
