@@ -98,7 +98,6 @@ data class Modifier(
         fun addModifier(player: Player?, item: ItemStack?, name: String?) { addModifier(player, item, name, false) }
 
         @JvmStatic
-
         fun addModifier(player: Player?, item: ItemStack?, name: String?, bench: Boolean) {
             TODO()
         }
