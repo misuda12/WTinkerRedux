@@ -15,7 +15,7 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 
-
+@Deprecated("Redundant")
 class BenchListener : Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -34,7 +34,7 @@ class BenchListener : Listener {
                             playEffect(EffectTypes.REPAIR, player, clickedBlock!!)
                         } else {
                             if((tool.modificationSpace ?: 0) > 0) {
-                                player.sendMessage("Fixed") // remove with finished todo
+                                player.sendMessage("added mod") // remove with finished todo
                                 TODO("Add mod")
                             } else {
                                 player.sendMessage("§cSorry, that tool doesn't have enough extra modifier space")
@@ -69,8 +69,8 @@ class BenchListener : Listener {
                             replace = ItemStack(itemStack).apply { amount -= 1 }
 
                         inventory.setItem(index, replace)
-
                     }
+
                     player.inventory.addItem(recipe!!.result)
                 }
 

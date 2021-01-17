@@ -1,16 +1,32 @@
 package eu.warfaremc.tinker.model
 
+import eu.warfaremc.tinker.model.extension.meta
+import eu.warfaremc.tinker.model.extension.stringLore
 import eu.warfaremc.tinker.tinker
+import eu.warfaremc.tinker.model.extension.intValue
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
+import java.text.MessageFormat
 
 class TinkerTool private constructor(val item: ItemStack) {
     companion object {
-
         private const val LEGACY_TOOL_IDENTIFIER = "&dTinker Tool"
         private const val LEGACY_BROKEN_TOOL_IDENTIFIER = "&4BROKEN TOOL"
+        private const val LORE_PATTERN = """
+                    §7Skill Level: {0}\n
+                    §7Exp: {1}\n
+                    §7Zbývá modifierů: {2}\n
+                    §7Durabilita: {3}\n
+                    §7Modifiery: {4}\n
+        """
+
+        @JvmStatic
+        fun levelDescription(level: Int): String? {
+            TODO("get from cfg")
+        }
 
         @JvmStatic
         fun isTinkerTool(item: ItemStack): Boolean {
@@ -33,12 +49,6 @@ class TinkerTool private constructor(val item: ItemStack) {
             }
             return repairMat == type
         }
-
-        @JvmStatic
-        fun repair(tool: TinkerTool) {
-            TODO()
-        }
-
 
         fun fixLegacy(item: ItemStack): ItemStack? {
             TODO()
@@ -68,20 +78,20 @@ class TinkerTool private constructor(val item: ItemStack) {
 
     }
 
-    var experience: Int?
-        get() = this.get("experience", PersistentDataType.INTEGER)
+    var experience: Int
+        get() = this.get("experience", PersistentDataType.INTEGER)?: 0
         set(value) = this.set("experience", PersistentDataType.INTEGER, value).also { updateLore() }
 
-    var durability: Int?
-        get() = this.get("durability", PersistentDataType.INTEGER)
+    var durability: Int
+        get() = this.get("durability", PersistentDataType.INTEGER)?: 0
         set(value) = this.set("durability", PersistentDataType.INTEGER, value).also { updateLore() }
 
-    var level: Int?
-        get() = this.get("level", PersistentDataType.INTEGER)
+    var level: Int
+        get() = this.get("level", PersistentDataType.INTEGER) ?: 0
         set(value) = this.set("level", PersistentDataType.INTEGER, value).also { updateLore() }
 
-    var modificationSpace: Int?
-        get() = this.get("modificationSpace", PersistentDataType.INTEGER)
+    var modificationSpace: Int
+        get() = this.get("modificationSpace", PersistentDataType.INTEGER) ?: 0
         set(value) = this.set("modificationSpace", PersistentDataType.INTEGER, value).also { updateLore() }
 
     var renamed: Boolean
@@ -89,14 +99,29 @@ class TinkerTool private constructor(val item: ItemStack) {
         set(value) = this.set("renamed", PersistentDataType.INTEGER, value.intValue).also { updateLore() }
 
 
-    private val Boolean.intValue
-        get() = if (this) 1 else 0
-    //TODO("Move to another file")
+    init {
+        item.meta<ItemMeta> {
+            isUnbreakable = true
+        }
+    }
 
-    private fun updateLore() {
+    fun repair() {
         TODO()
     }
 
+    private fun updateLore() {
+        if(this.item.hasItemMeta())
+            this.item.itemMeta!!.stringLore =
+                MessageFormat.format(
+                    TinkerTool.LORE_PATTERN,
+                    TinkerTool.levelDescription(level),
+                    experience,
+                    modificationSpace,
+                    "$durability / {${item.type.maxDurability}}"
+                ) //TODO add modification
+    }
+
+    //TODO Rework
     private fun <T, Z> get(key: String?, type: PersistentDataType<T, Z>): Z? {
         if (key == null)
             return null
@@ -106,6 +131,7 @@ class TinkerTool private constructor(val item: ItemStack) {
         return this.item.itemMeta!!.persistentDataContainer.get(NamespacedKey(tinker, key), type)
     }
 
+    //TODO Rework
     private fun <T, Z> set(key: String?, type: PersistentDataType<T, Z>, value: Z) {
         if (key == null)
             return
