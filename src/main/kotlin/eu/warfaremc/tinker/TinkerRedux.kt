@@ -76,7 +76,6 @@ internal lateinit var experienceChart: Map<Int, Int>
 class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WTinker") }
-
     internal val session = UUID.randomUUID().toString()
 
     @PublishedApi
@@ -87,6 +86,7 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
         override fun getBugTrackerURL(): String
             = "https://github.com/misuda12/WTinkerRedux/issues"
     }
+
     init {
         tinker = this
         kguava = CacheBuilder.newBuilder()
@@ -112,7 +112,7 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
             return
         }
         val configuration = Yaml.default.decodeFromString(Config.serializer(), config.saveToString())
-        logger.info { configuration.toString() }
+        kguava.put("configuration", configuration)
         val executionCoordinatorFunction =
             AsynchronousCommandExecutionCoordinator.newBuilder<CommandSender>()
                 .withSynchronousParsing()
@@ -148,7 +148,6 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
             commandAnnotation.parse(this)
             logger.info { "Successfully installed CommandFramework Cloud 1.4" }
         }
-
         TinkerToolEventHandler.initHandler()
     }
 

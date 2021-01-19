@@ -3,8 +3,7 @@ package eu.warfaremc.tinker.miscellaneous
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 
-
-fun isItemSimiliar(item: ItemStack?, SFitem: ItemStack?, lore: Boolean, data: DataType): Boolean {
+fun isItemSimilar(item: ItemStack?, SFitem: ItemStack?, lore: Boolean, data: DataType): Boolean {
     if(item == null)
         return SFitem == null
     if(SFitem == null)
