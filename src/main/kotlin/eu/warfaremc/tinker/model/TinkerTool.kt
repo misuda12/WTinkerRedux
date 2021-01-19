@@ -14,12 +14,15 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.enchantment.EnchantItemEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.AnvilInventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.SmithingInventory
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataType
 import java.nio.BufferUnderflowException
@@ -69,6 +72,7 @@ class TinkerTool constructor(val item: ItemStack) {
             return repairMat == type
         }
 
+        @JvmStatic
         fun fixLegacy(item: ItemStack): ItemStack? {
             TODO()
         }
@@ -84,7 +88,10 @@ class TinkerTool constructor(val item: ItemStack) {
         }
 
         @JvmStatic
-        fun of(item: ItemStack): TinkerTool? {
+        fun of(item: ItemStack?): TinkerTool? {
+            if(item == null)
+                return null
+
             val fixed: ItemStack
             if (isTinkerTool(item)) {
                 fixed = if (isLegacy(item))
@@ -101,40 +108,39 @@ class TinkerTool constructor(val item: ItemStack) {
     var uuid: UUID
         private set
 
-
-    var durability: Int = -1
-
+    var wear: Int
+        get() = (item.itemMeta as Damageable).damage
+        set(value) = setDamage(value)
 
     var broken: Boolean = false
-        get() = if(durability < 0) false else durability - wear <= 0
+        get() = if(wear <= 0) false else item.type.maxDurability - wear <= 0
         private set
 
     var experience: Int
         get() = this.get("experience") as Int
-        set(value) = this.set("experience", value).also { update() }
-
-    var wear: Int
-        get() = this.get("durability") as Int
-        set(value) = this.set("durability", value).also { update() }
+        set(value) = this.set("experience", value)
 
     var level: Int
-        get() = this.get("level") as Int ?: 0
-        set(value) = this.set("level", value).also { update() }
+        get() = this.get("level") as Int
+        set(value) = this.set("level", value)
 
     var modificationSpace: Int
         get() = this.get("modificationSpace") as Int
-        set(value) = this.set("modificationSpace", value).also { update() }
+        set(value) = this.set("modificationSpace", value)
 
     var renamed: Boolean
         get() = this.get("renamed") as Boolean
-        set(value) = this.set("renamed", value).also { update() }
+        set(value) = this.set("renamed", value)
 
+    var expcap: Int
+        get() = this.get("expcap") as Int
+        set(value) = this.set("expcap", value)
 
     init {
         item.meta<ItemMeta> {
             isUnbreakable = true
         }
-        durability = item.type.maxDurability.toInt()
+
         uuid = item.itemMeta!!.persistentDataContainer.get(NamespacedKey(tinker, "uuid"), PersistentDataType.BYTE_ARRAY).let {
             try {
                 val buffer = ByteBuffer.wrap(it)
@@ -145,19 +151,27 @@ class TinkerTool constructor(val item: ItemStack) {
         }
     }
 
-    fun repair() {
-        this.apply {
-            wear = 0
-            update()
-        }
+    private fun setDamage(value: Int) {
+        (this.item.itemMeta as Damageable).damage = value
     }
 
-     private fun update() {
+    fun repair() {
+        this.setDamage(item.type.maxDurability.toInt())
+        this.update()
+    }
+
+    fun update() {
         if (broken)
             this.item.itemMeta.also {
                 arrayListOf("&4BROKEN TOOL") + it //TODO read from config
             }
 
+        if(experience >= expcap) {
+            //if(expcap >= main.getInstance().expLevelChart.get()) //TODO max level
+
+            this.level += 1
+            this.experience = experience - expcap //left over experience
+        }
 
         if (this.item.hasItemMeta())
             this.item.itemMeta!!.stringLore =
@@ -172,6 +186,7 @@ class TinkerTool constructor(val item: ItemStack) {
 
     private fun get(key: String?): Any? {
         TODO("Rework")
+
     }
 
     private fun set(key: String?, value: Any?) {
@@ -219,7 +234,20 @@ class TinkerToolEventHandler : Listener {
                 isCancelled = true
                 whoClicked.sendMessage("§cTuto akci nelze provádět s Tinker Toolem.") //TODO read from config
             }
+
+        if(clickedInventory is AnvilInventory)
+            if(TinkerTool.isTinkerTool(cursor)) {
+                isCancelled = true
+                whoClicked.sendMessage("§cOmlouváme se, ale tento item nelze použít v Anvil!")
+            }
     }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    fun EnchantItemEvent.handle() {
+
+    }
+
+
 
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -235,7 +263,6 @@ class TinkerToolEventHandler : Listener {
         if (block.type.hardness == 0f)
             return
         //TODO("Special exp cases")
-
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -259,6 +286,7 @@ class TinkerToolEventHandler : Listener {
             return true
         }
         tool.wear += 1
+        tool.update()
 
        if(tool.broken)
            player.sendMessage("§cItem se rozbil.") //TODO read from config

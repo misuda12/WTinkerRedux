@@ -69,6 +69,10 @@ internal lateinit var kguava: Cache<Any, Any>
 internal lateinit var recipe: List<ShapedRecipe>
     private set
 
+@PublishedApi
+internal lateinit var experienceChart: Map<Int, Int>
+    private set
+
 class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WTinker") }
