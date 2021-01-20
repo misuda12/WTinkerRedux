@@ -14,12 +14,12 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
-import org.bukkit.event.enchantment.EnchantItemEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.AnvilInventory
+import org.bukkit.inventory.EnchantingInventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.SmithingInventory
 import org.bukkit.inventory.meta.Damageable
@@ -73,8 +73,31 @@ class TinkerTool constructor(val item: ItemStack) {
         }
 
         @JvmStatic
-        fun fixLegacy(item: ItemStack): ItemStack? {
-            TODO()
+        fun fixLegacy(item: ItemStack?): TinkerTool? {
+            if(item == null)
+                return null
+            if(!item.hasItemMeta())
+                return null
+
+            val tool = TinkerTool(item).let {
+
+                try {
+                    var line = item.itemMeta!!.lore!![2]
+                    it.level = line.substring(line.indexOf("(") + 1, line.indexOf(")")).toInt()
+
+                    line = item.itemMeta!!.lore!![3]
+                    it.experience = line.substring(line.indexOf(":"), line.indexOf("/")).toInt()
+
+                    line = item.itemMeta!!.lore!![5]
+                    it.modificationSpace = line.substring(line.indexOf(":") + 2).toInt()
+
+                    it
+                } catch (exception: Exception) {
+                    null
+                }
+            }
+
+            return tool;
         }
 
         @JvmStatic
@@ -92,13 +115,11 @@ class TinkerTool constructor(val item: ItemStack) {
             if(item == null)
                 return null
 
-            val fixed: ItemStack
             if (isTinkerTool(item)) {
-                fixed = if (isLegacy(item))
-                    fixLegacy(item) ?: return null
+                return if (isLegacy(item))
+                    fixLegacy(item)
                 else
-                    item
-                return TinkerTool(fixed)
+                    TinkerTool(item)
             }
             return null
         }
@@ -229,25 +250,12 @@ class TinkerToolEventHandler : Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun InventoryClickEvent.handle() {
-        if (clickedInventory is SmithingInventory)
+        if (clickedInventory is SmithingInventory || clickedInventory is EnchantingInventory || clickedInventory is AnvilInventory)
             if (TinkerTool.isTinkerTool(cursor)) {
                 isCancelled = true
                 whoClicked.sendMessage("§cTuto akci nelze provádět s Tinker Toolem.") //TODO read from config
             }
-
-        if(clickedInventory is AnvilInventory)
-            if(TinkerTool.isTinkerTool(cursor)) {
-                isCancelled = true
-                whoClicked.sendMessage("§cOmlouváme se, ale tento item nelze použít v Anvil!")
-            }
     }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    fun EnchantItemEvent.handle() {
-
-    }
-
-
 
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
