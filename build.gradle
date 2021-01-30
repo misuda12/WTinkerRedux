@@ -83,6 +83,10 @@ dependencies {
     compile group: 'org.snakeyaml', name: 'snakeyaml-engine', version: '2.2.1'
     // https://mvnrepository.com/artifact/commons-io/commons-io
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-core
+    compile group: 'org.jetbrains.exposed', name: 'exposed-core', version: '0.25.1'
+    // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-dao
+    compile group: 'org.jetbrains.exposed', name: 'exposed-dao', version: '0.25.1'
 
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
     providedCompile group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
