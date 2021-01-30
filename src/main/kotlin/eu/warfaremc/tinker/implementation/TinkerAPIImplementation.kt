@@ -7,6 +7,7 @@ import eu.warfaremc.tinker.model.Tinkers
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import kotlin.collections.HashSet
@@ -28,7 +29,7 @@ class TinkerAPIImplementation : TinkerAPI {
                         if(it == null)
                             null
                         else
-                            TinkerData(UUID.fromString(it[Tinkers.uid]), it[Tinkers.data])
+                            TinkerData.deserialize(uid, it[Tinkers.data]?.bytes)
                     }
             }
         }
@@ -45,18 +46,21 @@ class TinkerAPIImplementation : TinkerAPI {
         return get(uid).isPresent //works with cache and is an overall better solution than another transaction
     }
 
-    override fun put(datum: TinkerData?, save: Boolean): Boolean {
-        if(datum == null)
+    override fun put(tinkerData: TinkerData?, save: Boolean): Boolean {
+        if(tinkerData == null)
             return false
 
-        kguava.put(datum.uid, datum);
+        kguava.put(tinkerData.uid, tinkerData);
         if(save)
+        {
             transaction {
+                val serialized = TinkerData.serialize(tinkerData) ?: return@transaction false
                 Tinkers.insert {
-                    it[uid] = datum.uid.toString()
-                    it[data] = datum.data
+                    it[Tinkers.uid] = tinkerData.uid.toString()
+                    it[Tinkers.data] = ExposedBlob(serialized)
                 }
             }
+        }
 
         return true;
     }
@@ -65,11 +69,8 @@ class TinkerAPIImplementation : TinkerAPI {
         val set =  HashSet<TinkerData>();
         transaction {
             Tinkers.selectAll().map {
-                set.add(
-                    TinkerData(
-                        UUID.fromString(it[Tinkers.uid]), it[Tinkers.data]
-                    )
-                )
+                val entry = TinkerData.deserialize(UUID.fromString(it[Tinkers.uid]), it[Tinkers.data]?.bytes) ?: return@map
+                set.add(entry);
             }
         }
 

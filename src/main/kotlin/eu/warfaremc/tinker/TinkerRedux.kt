@@ -34,6 +34,8 @@ import cloud.commandframework.paper.PaperCommandManager
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import eu.warfaremc.common.yaml.Yaml
+import eu.warfaremc.tinker.api.TinkerAPI
+import eu.warfaremc.tinker.implementation.TinkerAPIImplementation
 import eu.warfaremc.tinker.model.TinkerToolEventHandler
 import eu.warfaremc.tinker.model.extension.item
 import eu.warfaremc.tinker.model.extension.meta
@@ -64,6 +66,9 @@ internal lateinit var tinker: TinkerRedux
 @PublishedApi
 internal lateinit var kguava: Cache<Any, Any>
     private set
+
+@PublishedApi
+internal lateinit var api: TinkerAPI
 
 @PublishedApi
 internal lateinit var recipe: List<ShapedRecipe>
@@ -101,6 +106,9 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
     lateinit var commandHelp: MinecraftHelp<CommandSender>
 
     override fun onEnable() {
+        if(!::api.isInitialized)
+            api = TinkerAPIImplementation();
+
         if (dataFolder.exists() == false)
         dataFolder.mkdirs().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
         saveDefaultConfig()

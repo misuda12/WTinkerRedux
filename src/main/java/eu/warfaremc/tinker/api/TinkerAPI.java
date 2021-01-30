@@ -14,7 +14,7 @@ public interface TinkerAPI {
      * Fetches the result from the tinker database based on the specified {@link UUID}.
      *
      * @param uid {@link UUID} an identifier unique to the tinker tool
-     * @return {@link Optional<TinkerData>} database query result
+     * @return {@link Optional< TinkerData >} database query result
      */
     @NotNull
     Optional<TinkerData> get(@Nullable UUID uid);
@@ -39,7 +39,8 @@ public interface TinkerAPI {
 
     /**
      * Fetches all entries from tinker database.
-     * @return {@link Set<TinkerData>} the result
+     *
+     * @return {@link Set< TinkerData >} the result
      */
     @NotNull
     Set<TinkerData> getAll();

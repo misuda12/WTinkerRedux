@@ -1,5 +1,7 @@
 package eu.warfaremc.tinker.model
 
+import eu.warfaremc.tinker.api
+import eu.warfaremc.tinker.api.TinkerAPI
 import eu.warfaremc.tinker.model.extension.isOfType
 import eu.warfaremc.tinker.model.extension.meta
 import eu.warfaremc.tinker.model.extension.stringLore
@@ -29,6 +31,7 @@ import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
 import java.text.MessageFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 class TinkerTool constructor(val item: ItemStack) {
     companion object {
@@ -206,12 +209,13 @@ class TinkerTool constructor(val item: ItemStack) {
     }
 
     private fun get(key: String?): Any? {
-        TODO("Rework")
-
+        return api.get(uuid).get()[key]
     }
 
     private fun set(key: String?, value: Any?) {
-        TODO("Rework")
+        if(key == null || value == null)
+            return
+        api.get(uuid).ifPresent { it[key] = value}
     }
 }
 
