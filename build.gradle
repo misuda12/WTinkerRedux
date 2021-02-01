@@ -64,6 +64,7 @@ dependencies {
     // Serialization
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.0.1"
 
     // Commands
     implementation 'cloud.commandframework:cloud-paper:1.4.0'
