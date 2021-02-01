@@ -34,12 +34,13 @@ private val scheduler
     get() = Bukkit.getScheduler()
 
 @OptIn(InternalCoroutinesApi::class)
-class BukkitDispatcher(private val plugin: JavaPlugin, private val async: Boolean = false) : CoroutineDispatcher(), Delay {
-    private val runTaskLater: (Plugin, Runnable, Long) -> BukkitTask
-            = if (async) scheduler::runTaskLaterAsynchronously else scheduler::runTaskLater
+class BukkitDispatcher(private val plugin: JavaPlugin, private val async: Boolean = false) : CoroutineDispatcher(),
+    Delay {
+    private val runTaskLater: (Plugin, Runnable, Long) -> BukkitTask =
+        if (async) scheduler::runTaskLaterAsynchronously else scheduler::runTaskLater
 
-    private val runTask: (Plugin, Runnable) -> BukkitTask
-            = if (async) scheduler::runTaskAsynchronously else scheduler::runTask
+    private val runTask: (Plugin, Runnable) -> BukkitTask =
+        if (async) scheduler::runTaskAsynchronously else scheduler::runTask
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         if (context.isActive == false)
@@ -62,5 +63,4 @@ class BukkitDispatcher(private val plugin: JavaPlugin, private val async: Boolea
     }
 }
 
-fun JavaPlugin.dispatcher(async: Boolean = false)
-    = BukkitDispatcher(this, async)
+fun JavaPlugin.dispatcher(async: Boolean = false) = BukkitDispatcher(this, async)

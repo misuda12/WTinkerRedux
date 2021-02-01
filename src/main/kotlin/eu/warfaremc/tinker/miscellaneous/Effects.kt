@@ -29,9 +29,6 @@ import org.bukkit.Effect
 import org.bukkit.Sound
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
-import org.bukkit.scheduler.BukkitRunnable
-
-import org.bukkit.Bukkit
 
 fun playEffect(player: Player, block: Block) {
     tinker.schedule(SynchronizationContext.ASYNCHRONOUS) {

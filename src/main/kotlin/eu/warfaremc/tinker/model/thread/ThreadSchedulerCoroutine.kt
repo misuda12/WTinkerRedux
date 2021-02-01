@@ -139,9 +139,9 @@ private interface TaskScheduler {
 
     val currentTask: BukkitTask?
 
-    fun doWait (ticks: Long, task: (Long) -> Unit)
+    fun doWait(ticks: Long, task: (Long) -> Unit)
 
-    fun doYield             (task: (Long) -> Unit)
+    fun doYield(task: (Long) -> Unit)
 
     fun doContextSwitch(context: SynchronizationContext, task: (Boolean) -> Unit)
 
@@ -173,14 +173,14 @@ private class TaskSchedulerNonRepeating(val plugin: Plugin, val scheduler: Bukki
 
     private fun runTask(context: SynchronizationContext = currentContext(), task: () -> Unit) {
         currentTask = when (context) {
-            SynchronizationContext.SYNC         -> scheduler.runTask(plugin, task)
+            SynchronizationContext.SYNC -> scheduler.runTask(plugin, task)
             SynchronizationContext.ASYNCHRONOUS -> scheduler.runTaskAsynchronously(plugin, task)
         }
     }
 
     private fun runTaskLater(ticks: Long, context: SynchronizationContext = currentContext(), task: () -> Unit) {
         currentTask = when (context) {
-            SynchronizationContext.SYNC         -> scheduler.runTaskLater(plugin, task, ticks)
+            SynchronizationContext.SYNC -> scheduler.runTaskLater(plugin, task, ticks)
             SynchronizationContext.ASYNCHRONOUS -> scheduler.runTaskLaterAsynchronously(plugin, task, ticks)
         }
     }
@@ -218,11 +218,11 @@ private class TaskSchedulerRepeating(
         currentTask?.cancel()
         val task: () -> Unit = { nextContinuation?.tryResume(interval) }
         currentTask = when (context) {
-            SynchronizationContext.SYNC         -> scheduler.runTaskTimer(plugin, task, 0L, interval)
+            SynchronizationContext.SYNC -> scheduler.runTaskTimer(plugin, task, 0L, interval)
             SynchronizationContext.ASYNCHRONOUS -> scheduler.runTaskTimerAsynchronously(plugin, task, 0L, interval)
         }
     }
 }
 
-private fun currentContext(): SynchronizationContext
-        = if (Bukkit.isPrimaryThread()) SynchronizationContext.SYNC else SynchronizationContext.ASYNCHRONOUS
+private fun currentContext(): SynchronizationContext =
+    if (Bukkit.isPrimaryThread()) SynchronizationContext.SYNC else SynchronizationContext.ASYNCHRONOUS

@@ -25,7 +25,7 @@
 package eu.warfaremc.common.yaml
 
 data class YamlPath(val segments: List<YamlPathSegment>) {
-        constructor(vararg segments: YamlPathSegment) : this(segments.toList())
+    constructor(vararg segments: YamlPathSegment) : this(segments.toList())
 
     val endLocation: Location = segments.last().location
 
@@ -54,7 +54,7 @@ data class YamlPath(val segments: List<YamlPathSegment>) {
         val builder = StringBuilder()
         while (index <= segments.lastIndex) {
             val segmentIndex = index
-            index ++
+            index++
             when (val segment = segments[segmentIndex]) {
                 is YamlPathSegment.ListEntry -> {
                     builder.append('[')
@@ -75,16 +75,17 @@ data class YamlPath(val segments: List<YamlPathSegment>) {
                     if (index <= segments.lastIndex && segments[index] is YamlPathSegment.ListEntry) {
                         builder.append(" entry ")
                         builder.append((segments[index] as YamlPathSegment.ListEntry).index)
-                        index ++
+                        index++
                     }
                     if (index <= segments.lastIndex && segments[index] is YamlPathSegment.AliasReference) {
                         builder.append(" &")
                         builder.append((segments[index] as YamlPathSegment.AliasReference).name)
-                        index ++
+                        index++
                     }
                     builder.append(")")
                 }
-                is YamlPathSegment.Root, is YamlPathSegment.Error, is YamlPathSegment.MapElementValue, is YamlPathSegment.AliasDefinition -> {  }
+                is YamlPathSegment.Root, is YamlPathSegment.Error, is YamlPathSegment.MapElementValue, is YamlPathSegment.AliasDefinition -> {
+                }
             }
         }
         if (builder.isNotEmpty())
@@ -94,7 +95,8 @@ data class YamlPath(val segments: List<YamlPathSegment>) {
 
     companion object {
         val root: YamlPath = YamlPath(YamlPathSegment.Root)
-        fun forAliasDefinition(name: String, location: Location): YamlPath = YamlPath(YamlPathSegment.AliasDefinition(name, location))
+        fun forAliasDefinition(name: String, location: Location): YamlPath =
+            YamlPath(YamlPathSegment.AliasDefinition(name, location))
     }
 }
 

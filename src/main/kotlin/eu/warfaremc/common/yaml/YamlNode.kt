@@ -39,7 +39,7 @@ sealed class YamlNode(open val path: YamlPath) {
 
 }
 
-data class YamlScalar(val content: String, override val path: YamlPath): YamlNode(path) {
+data class YamlScalar(val content: String, override val path: YamlPath) : YamlNode(path) {
 
     override fun equivalentContentTo(other: YamlNode): Boolean = other is YamlScalar && this.content == other.content
     override fun contentToString(): String = "'$content'"
@@ -52,8 +52,8 @@ data class YamlScalar(val content: String, override val path: YamlPath): YamlNod
     private fun <T> convertToIntegerLikeValue(converter: (String, Int) -> T, description: String): T {
         try {
             return when {
-                content.startsWith("0o")  -> converter(content.substring(2), 8)
-                content.startsWith("0x")  -> converter(content.substring(2), 16)
+                content.startsWith("0o") -> converter(content.substring(2), 8)
+                content.startsWith("0x") -> converter(content.substring(2), 16)
                 content.startsWith("-0o") -> converter("-" + content.substring(3), 8)
                 content.startsWith("-0x") -> converter("-" + content.substring(3), 16)
                 else -> converter(content, 10)
@@ -105,11 +105,19 @@ data class YamlScalar(val content: String, override val path: YamlPath): YamlNod
         return when (content) {
             "true", "True", "TRUE" -> true
             "false", "False", "FALSE" -> false
-            else -> throw YamlScalarFormatException("Value '$content' is not a valid boolean, permitted choices are: true or false", path, content)
+            else -> throw YamlScalarFormatException(
+                "Value '$content' is not a valid boolean, permitted choices are: true or false",
+                path,
+                content
+            )
         }
     }
 
-    fun toChar(): Char = content.singleOrNull() ?: throw YamlScalarFormatException("Value '$content' is not a valid character value", path, content)
+    fun toChar(): Char = content.singleOrNull() ?: throw YamlScalarFormatException(
+        "Value '$content' is not a valid character value",
+        path,
+        content
+    )
 
     override fun withPath(newPath: YamlPath): YamlScalar = this.copy(path = newPath)
 
@@ -176,12 +184,19 @@ data class YamlMap(val entries: Map<YamlScalar, YamlNode>, override val path: Ya
             return false
         if (this.entries.size != other.entries.size)
             return false
-        return this.entries.all { (thisKey, thisValue) -> other.entries.any { it.key.equivalentContentTo(thisKey) && it.value.equivalentContentTo(thisValue) } }
+        return this.entries.all { (thisKey, thisValue) ->
+            other.entries.any {
+                it.key.equivalentContentTo(thisKey) && it.value.equivalentContentTo(
+                    thisValue
+                )
+            }
+        }
     }
 
 
     override fun contentToString(): String =
-        "{" + entries.map { (key, value) -> "${key.contentToString()}: ${value.contentToString()}" }.joinToString(", ") + "}"
+        "{" + entries.map { (key, value) -> "${key.contentToString()}: ${value.contentToString()}" }
+            .joinToString(", ") + "}"
 
     @Suppress("UNCHECKED_CAST")
     operator fun <T : YamlNode> get(key: String): T? =
@@ -189,7 +204,7 @@ data class YamlMap(val entries: Map<YamlScalar, YamlNode>, override val path: Ya
             ?.value as T?
 
     fun getScalar(key: String): YamlScalar? = when (val node = get<YamlNode>(key)) {
-        null          -> null
+        null -> null
         is YamlScalar -> node
         else -> throw IncorrectTypeException("Value for '$key' is not a scalar", node.path)
     }
@@ -301,13 +316,22 @@ internal class YamlNodeReader(
                     val key = readMapKey(path)
                     val keyNode = YamlScalar(key, path.withMapElementKey(key, keyLocation))
                     val valueLocation = parser.peek(keyNode.path).location
-                    val valuePath = if (isMerged(keyNode)) path.withMerge(valueLocation) else keyNode.path.withMapElementValue(valueLocation)
+                    val valuePath =
+                        if (isMerged(keyNode)) path.withMerge(valueLocation) else keyNode.path.withMapElementValue(
+                            valueLocation
+                        )
                     val (value, anchor) = readNodeAndAnchor(valuePath)
-                    if (path == YamlPath.root && extensionDefinitionPrefix != null && key.startsWith(extensionDefinitionPrefix)) {
+                    if (path == YamlPath.root && extensionDefinitionPrefix != null && key.startsWith(
+                            extensionDefinitionPrefix
+                        )
+                    ) {
                         if (anchor == null)
-                            throw NoAnchorForExtensionException(key, extensionDefinitionPrefix, path.withError(event.location))
-                    }
-                    else items += (keyNode to value)
+                            throw NoAnchorForExtensionException(
+                                key,
+                                extensionDefinitionPrefix,
+                                path.withError(event.location)
+                            )
+                    } else items += (keyNode to value)
                 }
             }
         }
@@ -327,7 +351,10 @@ internal class YamlNodeReader(
         }
     }
 
-    private fun nonScalarMapKeyException(path: YamlPath, event: Event) = MalformedYamlException("Property name must not be a list, map, null or tagged value. (To use 'null' as a property name, enclose it in quotes)", path.withError(event.location))
+    private fun nonScalarMapKeyException(path: YamlPath, event: Event) = MalformedYamlException(
+        "Property name must not be a list, map, null or tagged value. (To use 'null' as a property name, enclose it in quotes)",
+        path.withError(event.location)
+    )
 
     private fun YamlNode.maybeToTaggedNode(tag: Optional<String>): YamlNode =
         tag.map<YamlNode> { YamlTaggedNode(it, this) }.orElse(this)
@@ -340,7 +367,10 @@ internal class YamlNodeReader(
                 is YamlList -> doMerges(items, mappingsToMerge.items)
                 else -> doMerges(items, listOf(mappingsToMerge))
             }
-            else -> throw MalformedYamlException("Cannot perform multiple '<<' merges into a map. Instead, combine all merges into a single '<<' entry", mergeEntries.second().key.path)
+            else -> throw MalformedYamlException(
+                "Cannot perform multiple '<<' merges into a map. Instead, combine all merges into a single '<<' entry",
+                mergeEntries.second().key.path
+            )
         }
     }
 
@@ -363,7 +393,8 @@ internal class YamlNodeReader(
                     }
                 }
                 // ignore YamlTaggedNode
-                else -> {  }
+                else -> {
+                }
             }
         }
         return merged
@@ -374,7 +405,10 @@ internal class YamlNodeReader(
         val resolvedNode = aliases.getOrElse(anchor) {
             throw UnknownAnchorException(anchor.value, path.withError(event.location))
         }
-        return resolvedNode.withPath(path.withAliasReference(anchor.value, event.location).withAliasDefinition(anchor.value, resolvedNode.location))
+        return resolvedNode.withPath(
+            path.withAliasReference(anchor.value, event.location)
+                .withAliasDefinition(anchor.value, resolvedNode.location)
+        )
     }
 
     private fun isMerged(key: YamlNode): Boolean = key is YamlScalar && key.content == "<<"

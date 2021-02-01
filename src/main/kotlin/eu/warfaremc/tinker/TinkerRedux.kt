@@ -85,11 +85,9 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
 
     @PublishedApi
     internal var slimefun = object : SlimefunAddon {
-        override fun getJavaPlugin(): JavaPlugin
-            = this@TinkerRedux
+        override fun getJavaPlugin(): JavaPlugin = this@TinkerRedux
 
-        override fun getBugTrackerURL(): String
-            = "https://github.com/misuda12/WTinkerRedux/issues"
+        override fun getBugTrackerURL(): String = "https://github.com/misuda12/WTinkerRedux/issues"
     }
 
     init {
@@ -106,11 +104,11 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
     lateinit var commandHelp: MinecraftHelp<CommandSender>
 
     override fun onEnable() {
-        if(!::api.isInitialized)
-            api = TinkerAPIImplementation();
+        if (!::api.isInitialized)
+            api = TinkerAPIImplementation()
 
         if (dataFolder.exists() == false)
-        dataFolder.mkdirs().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
+            dataFolder.mkdirs().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
         saveDefaultConfig()
         config.options().copyDefaults(true)
         saveConfig()
@@ -134,8 +132,7 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
             )
         } catch (exception: Exception) {
             logger.error { "Failed to initialize CommandFramework::CommandManager" }
-        }
-        finally {
+        } finally {
             audiences = BukkitAudiences.create(this)
             commandHelp = MinecraftHelp("/prestige help", audiences::sender, commandManager)
             if (commandManager.queryCapability(CloudBukkitCapabilities.BRIGADIER))
@@ -159,7 +156,7 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
         TinkerToolEventHandler.initHandler()
     }
 
-    override fun onDisable() {  }
+    override fun onDisable() {}
 
     @CommandMethod("tt")
     @CommandDescription("Basic set of commands for WTinkerRedux")
@@ -207,7 +204,9 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
     fun commandName(
         sender: Player,
         @NotNull @Argument("name") name: String
-    ) { TODO() }
+    ) {
+        TODO()
+    }
 
     @CommandMethod("tt addexp <amount>")
     @CommandDescription("Adds more exp to tinker tool")
@@ -215,14 +214,18 @@ class TinkerRedux : JavaPlugin(), CoroutineScope by MainScope() {
     fun commandAddExp(
         sender: Player,
         @NotNull @Argument("amount") name: Int
-    ) { TODO() }
+    ) {
+        TODO()
+    }
 
     @CommandMethod("tt reload")
     @CommandDescription("Reloads WTinkerRedux")
     @CommandPermission("tinkertools.admin")
     fun commandReload(
         sender: Player
-    ) { TODO() }
+    ) {
+        TODO()
+    }
 }
 
 fun <T> identity(t: T): T = t

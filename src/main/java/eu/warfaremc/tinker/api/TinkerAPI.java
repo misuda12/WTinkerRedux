@@ -1,6 +1,6 @@
 package eu.warfaremc.tinker.api;
 
-import eu.warfaremc.tinker.model.TinkerData;
+import eu.warfaremc.tinker.model.serializable.TinkerData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

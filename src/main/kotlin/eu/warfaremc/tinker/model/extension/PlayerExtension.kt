@@ -37,4 +37,4 @@ fun Player.play(
 ) = playSound(location, sound, category, volume, pitch)
 
 fun Player.play(location: Location = this.location, instrument: Instrument, note: Note) =
-    playNote(location,  instrument, note)
+    playNote(location, instrument, note)

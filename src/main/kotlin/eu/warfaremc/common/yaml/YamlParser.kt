@@ -53,7 +53,10 @@ internal class YamlParser(source: String) {
     fun consumeEventOfType(type: Event.ID, path: YamlPath) {
         val event = consumeEvent(path)
         if (event.eventId != type)
-            throw MalformedYamlException("Unexpected ${event.eventId}, expected $type", path.withError(Location(event.startMark.get().line, event.startMark.get().column)))
+            throw MalformedYamlException(
+                "Unexpected ${event.eventId}, expected $type",
+                path.withError(Location(event.startMark.get().line, event.startMark.get().column))
+            )
     }
 
     private fun checkEvent(path: YamlPath, retrieve: () -> Event): Event {
@@ -64,7 +67,10 @@ internal class YamlParser(source: String) {
         }
     }
 
-    private fun translateYamlEngineException(exception: MarkedYamlEngineException, path: YamlPath): MalformedYamlException {
+    private fun translateYamlEngineException(
+        exception: MarkedYamlEngineException,
+        path: YamlPath
+    ): MalformedYamlException {
         val context = if (exception.context == null) "" else {
             val contextMark = exception.contextMark.get()
             exception.context + "\n" +

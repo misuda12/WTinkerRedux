@@ -84,7 +84,7 @@ inline fun <reified T : Event> Plugin.expect(
     val listener = hear<T> {
         if (predicate(it)) {
             action(it)
-            if (++ count >= amount)
+            if (++count >= amount)
                 unregister()
         }
     }

@@ -4,9 +4,9 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 
 fun isItemSimilar(item: ItemStack?, SFitem: ItemStack?, lore: Boolean, data: DataType): Boolean {
-    if(item == null)
+    if (item == null)
         return SFitem == null
-    if(SFitem == null)
+    if (SFitem == null)
         return false
     //TODO()
     return false

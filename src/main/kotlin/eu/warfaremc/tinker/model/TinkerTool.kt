@@ -1,7 +1,6 @@
 package eu.warfaremc.tinker.model
 
 import eu.warfaremc.tinker.api
-import eu.warfaremc.tinker.api.TinkerAPI
 import eu.warfaremc.tinker.model.extension.isOfType
 import eu.warfaremc.tinker.model.extension.meta
 import eu.warfaremc.tinker.model.extension.stringLore
@@ -31,7 +30,6 @@ import java.nio.BufferUnderflowException
 import java.nio.ByteBuffer
 import java.text.MessageFormat
 import java.util.*
-import kotlin.collections.HashMap
 
 class TinkerTool constructor(val item: ItemStack) {
     companion object {
@@ -77,9 +75,9 @@ class TinkerTool constructor(val item: ItemStack) {
 
         @JvmStatic
         fun fixLegacy(item: ItemStack?): TinkerTool? {
-            if(item == null)
+            if (item == null)
                 return null
-            if(!item.hasItemMeta())
+            if (!item.hasItemMeta())
                 return null
 
             val tool = TinkerTool(item).let {
@@ -100,22 +98,27 @@ class TinkerTool constructor(val item: ItemStack) {
                 }
             }
 
-            return tool;
+            return tool
         }
 
         @JvmStatic
         fun isLegacy(item: ItemStack): Boolean {
             return if (item.hasItemMeta() && item.itemMeta!!.hasLore()) (
-                item.itemMeta!!.lore!![0].contains(LEGACY_TOOL_IDENTIFIER) || item.itemMeta!!.lore!![0].contains(LEGACY_BROKEN_TOOL_IDENTIFIER)
-                )
-                    && !item.itemMeta!!.persistentDataContainer.has(NamespacedKey(tinker, "uuid"), PersistentDataType.BYTE_ARRAY)
+                    item.itemMeta!!.lore!![0].contains(LEGACY_TOOL_IDENTIFIER) || item.itemMeta!!.lore!![0].contains(
+                        LEGACY_BROKEN_TOOL_IDENTIFIER
+                    )
+                    )
+                    && !item.itemMeta!!.persistentDataContainer.has(
+                NamespacedKey(tinker, "uuid"),
+                PersistentDataType.BYTE_ARRAY
+            )
             else
                 false
         }
 
         @JvmStatic
         fun of(item: ItemStack?): TinkerTool? {
-            if(item == null)
+            if (item == null)
                 return null
 
             if (isTinkerTool(item)) {
@@ -137,7 +140,7 @@ class TinkerTool constructor(val item: ItemStack) {
         set(value) = setDamage(value)
 
     var broken: Boolean = false
-        get() = if(wear <= 0) false else item.type.maxDurability - wear <= 0
+        get() = if (wear <= 0) false else item.type.maxDurability - wear <= 0
         private set
 
     var experience: Int
@@ -165,14 +168,15 @@ class TinkerTool constructor(val item: ItemStack) {
             isUnbreakable = true
         }
 
-        uuid = item.itemMeta!!.persistentDataContainer.get(NamespacedKey(tinker, "uuid"), PersistentDataType.BYTE_ARRAY).let {
-            try {
-                val buffer = ByteBuffer.wrap(it)
-                UUID(buffer.long, buffer.long)
-            } catch (exception: BufferUnderflowException) {
-                UUID.randomUUID()
+        uuid = item.itemMeta!!.persistentDataContainer.get(NamespacedKey(tinker, "uuid"), PersistentDataType.BYTE_ARRAY)
+            .let {
+                try {
+                    val buffer = ByteBuffer.wrap(it)
+                    UUID(buffer.long, buffer.long)
+                } catch (exception: BufferUnderflowException) {
+                    UUID.randomUUID()
+                }
             }
-        }
     }
 
     private fun setDamage(value: Int) {
@@ -190,7 +194,7 @@ class TinkerTool constructor(val item: ItemStack) {
                 arrayListOf("&4BROKEN TOOL") + it //TODO read from config
             }
 
-        if(experience >= expcap) {
+        if (experience >= expcap) {
             //if(expcap >= main.getInstance().expLevelChart.get()) //TODO max level
 
             this.level += 1
@@ -213,9 +217,9 @@ class TinkerTool constructor(val item: ItemStack) {
     }
 
     private fun set(key: String?, value: Any?) {
-        if(key == null || value == null)
+        if (key == null || value == null)
             return
-        api.get(uuid).ifPresent { it[key] = value}
+        api.get(uuid).ifPresent { it[key] = value }
     }
 }
 
@@ -266,7 +270,7 @@ class TinkerToolEventHandler : Listener {
     fun BlockBreakEvent.handle() {
         isCancelled = handleCommonToolInteraction(player)
 
-        if(isCancelled)
+        if (isCancelled)
             return
 
         if (TinkerTool.isTinkerTool(player.inventory.itemInMainHand))
@@ -279,14 +283,14 @@ class TinkerToolEventHandler : Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun EntityShootBowEvent.handle() {
-        if(entity is Player)
+        if (entity is Player)
             isCancelled = handleCommonToolInteraction(entity as Player)
 
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun EntityDamageByEntityEvent.handle() {
-        if(damager is Player)
+        if (damager is Player)
             isCancelled = handleCommonToolInteraction(damager as Player)
     }
 
@@ -300,10 +304,10 @@ class TinkerToolEventHandler : Listener {
         tool.wear += 1
         tool.update()
 
-       if(tool.broken)
-           player.sendMessage("§cItem se rozbil.") //TODO read from config
+        if (tool.broken)
+            player.sendMessage("§cItem se rozbil.") //TODO read from config
 
-       player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 1f, 1f)
-       return false
+        player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 1f, 1f)
+        return false
     }
 }

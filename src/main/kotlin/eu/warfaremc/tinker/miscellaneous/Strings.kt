@@ -48,7 +48,7 @@ fun toRomanInt(roman: String): Int {
         if (i + 1 < roman.length)
             if (a0 >= array[i + 1].fromRoman())
                 total += a0
-           else total -= a0
+            else total -= a0
         else total += a0
     }
     return total
@@ -57,13 +57,13 @@ fun toRomanInt(roman: String): Int {
 //region private
 private fun Char.fromRoman(): Int {
     return when (this) {
-        'I'  -> 1
-        'V'  -> 5
-        'X'  -> 10
-        'L'  -> 50
-        'C'  -> 100
-        'D'  -> 500
-        'M'  -> 1_000
+        'I' -> 1
+        'V' -> 5
+        'X' -> 10
+        'L' -> 50
+        'C' -> 100
+        'D' -> 500
+        'M' -> 1_000
         else -> 0
     }
 }

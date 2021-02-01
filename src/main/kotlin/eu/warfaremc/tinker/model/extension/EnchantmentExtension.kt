@@ -29,8 +29,7 @@ class EnchantmentExtension {
     private val _set: MutableSet<EnchantmentContainer> = mutableSetOf()
     val set: Set<EnchantmentContainer> = _set
 
-    fun with(enchantment: Enchantment)
-            = EnchantmentContainer(enchantment).also { _set.add(it) }
+    fun with(enchantment: Enchantment) = EnchantmentContainer(enchantment).also { _set.add(it) }
 
     inline fun with(vararg enchantments: Enchantment, config: EnchantmentContainer.(Enchantment) -> Unit) {
         enchantments.forEach { with(it).apply { config(it) } }

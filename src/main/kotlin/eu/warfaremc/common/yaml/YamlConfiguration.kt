@@ -42,5 +42,5 @@ enum class PolymorphismStyle {
 
 enum class SequenceStyle(internal val flowStyle: FlowStyle) {
     Block(FlowStyle.BLOCK),
-    Flow (FlowStyle.FLOW)
+    Flow(FlowStyle.FLOW)
 }

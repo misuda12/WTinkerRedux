@@ -77,8 +77,7 @@ data class Modifier(
         }
 
         @JvmStatic
-        fun getAllEnabled(): List<Modifier>
-                = getAll().filter { it.enabled }
+        fun getAllEnabled(): List<Modifier> = getAll().filter { it.enabled }
 
         @JvmStatic
         fun getAllEnabledBench(item: ItemStack?): List<Modifier> {
@@ -95,7 +94,9 @@ data class Modifier(
         }
 
         @JvmStatic
-        fun addModifier(player: Player?, item: ItemStack?, name: String?) { addModifier(player, item, name, false) }
+        fun addModifier(player: Player?, item: ItemStack?, name: String?) {
+            addModifier(player, item, name, false)
+        }
 
         @JvmStatic
         fun addModifier(player: Player?, item: ItemStack?, name: String?, bench: Boolean) {
@@ -131,7 +132,6 @@ data class Modifier(
         }
 
         @JvmStatic
-        fun getModifierFromLore(lore: String?): Modifier?
-                = getAll().find { it.lore == lore }
+        fun getModifierFromLore(lore: String?): Modifier? = getAll().find { it.lore == lore }
     }
 }

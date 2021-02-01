@@ -56,7 +56,7 @@ class Yaml(
 
     override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
         val writer = object : StringWriter(), StreamDataWriter {
-            override fun flush() { }
+            override fun flush() {}
         }
         val output = YamlO(writer, serializersModule, configuration)
         output.encodeSerializableValue(serializer, value)
@@ -77,7 +77,12 @@ sealed class YamlI(
     internal companion object {
         private val missingFieldExceptionMessage: Regex = """^Field '(.*)' is required, but it was missing$""".toRegex()
 
-        internal fun createFor(node: YamlNode, context: SerializersModule, configuration: YamlConfiguration, descriptor: SerialDescriptor): YamlI = when (node) {
+        internal fun createFor(
+            node: YamlNode,
+            context: SerializersModule,
+            configuration: YamlConfiguration,
+            descriptor: SerialDescriptor
+        ): YamlI = when (node) {
             is YamlNull -> when {
                 descriptor.kind is PolymorphicKind && !descriptor.isNullable -> throw MissingTypeTagException(node.path)
                 else -> YamlNullInput(node, context, configuration)
@@ -86,12 +91,18 @@ sealed class YamlI(
                 is PrimitiveKind, SerialKind.ENUM -> YamlScalarInput(node, context, configuration)
                 is SerialKind.CONTEXTUAL -> YamlContextualInput(node, context, configuration)
                 is PolymorphicKind -> throw MissingTypeTagException(node.path)
-                else -> throw IncorrectTypeException("Expected ${descriptor.kind.friendlyDescription}, but got a scalar value", node.path)
+                else -> throw IncorrectTypeException(
+                    "Expected ${descriptor.kind.friendlyDescription}, but got a scalar value",
+                    node.path
+                )
             }
             is YamlList -> when (descriptor.kind) {
                 is StructureKind.LIST -> YamlListInput(node, context, configuration)
                 is SerialKind.CONTEXTUAL -> YamlContextualInput(node, context, configuration)
-                else -> throw IncorrectTypeException("Expected ${descriptor.kind.friendlyDescription}, but got a list", node.path)
+                else -> throw IncorrectTypeException(
+                    "Expected ${descriptor.kind.friendlyDescription}, but got a list",
+                    node.path
+                )
             }
             is YamlMap -> when (descriptor.kind) {
                 is StructureKind.CLASS, StructureKind.OBJECT -> YamlObjectInput(node, context, configuration)
@@ -101,34 +112,69 @@ sealed class YamlI(
                     PolymorphismStyle.Tag -> throw MissingTypeTagException(node.path)
                     PolymorphismStyle.Property -> createPolymorphicMapDeserializer(node, context, configuration)
                 }
-                else -> throw IncorrectTypeException("Expected ${descriptor.kind.friendlyDescription}, but got a map", node.path)
+                else -> throw IncorrectTypeException(
+                    "Expected ${descriptor.kind.friendlyDescription}, but got a map",
+                    node.path
+                )
             }
             is YamlTaggedNode -> when {
-                descriptor.kind is PolymorphicKind && configuration.polymorphismStyle == PolymorphismStyle.Tag -> YamlPolymorphicInput(node.tag, node.path, node.innerNode, context, configuration)
+                descriptor.kind is PolymorphicKind && configuration.polymorphismStyle == PolymorphismStyle.Tag -> YamlPolymorphicInput(
+                    node.tag,
+                    node.path,
+                    node.innerNode,
+                    context,
+                    configuration
+                )
                 else -> createFor(node.innerNode, context, configuration, descriptor)
             }
         }
 
-        private fun createPolymorphicMapDeserializer(node: YamlMap, context: SerializersModule, configuration: YamlConfiguration): YamlPolymorphicInput {
+        private fun createPolymorphicMapDeserializer(
+            node: YamlMap,
+            context: SerializersModule,
+            configuration: YamlConfiguration
+        ): YamlPolymorphicInput {
             val desiredKey = configuration.polymorphismPropertyName
             when (val typeName = node.getValue(desiredKey)) {
-                is YamlList -> throw InvalidPropertyValueException(desiredKey, "expected a string, but got a list", typeName.path)
-                is YamlMap -> throw InvalidPropertyValueException(desiredKey, "expected a string, but got a map", typeName.path)
-                is YamlNull -> throw InvalidPropertyValueException(desiredKey, "expected a string, but got a null value", typeName.path)
-                is YamlTaggedNode -> throw InvalidPropertyValueException(desiredKey, "expected a string, but got a tagged value", typeName.path)
+                is YamlList -> throw InvalidPropertyValueException(
+                    desiredKey,
+                    "expected a string, but got a list",
+                    typeName.path
+                )
+                is YamlMap -> throw InvalidPropertyValueException(
+                    desiredKey,
+                    "expected a string, but got a map",
+                    typeName.path
+                )
+                is YamlNull -> throw InvalidPropertyValueException(
+                    desiredKey,
+                    "expected a string, but got a null value",
+                    typeName.path
+                )
+                is YamlTaggedNode -> throw InvalidPropertyValueException(
+                    desiredKey,
+                    "expected a string, but got a tagged value",
+                    typeName.path
+                )
                 is YamlScalar -> {
                     val remainingProperties = node.withoutKey(desiredKey)
 
-                    return YamlPolymorphicInput(typeName.content, typeName.path, remainingProperties, context, configuration)
+                    return YamlPolymorphicInput(
+                        typeName.content,
+                        typeName.path,
+                        remainingProperties,
+                        context,
+                        configuration
+                    )
                 }
             }
         }
 
-        private fun YamlMap.getValue(desiredKey: String): YamlNode
-                = this[desiredKey] ?: throw MissingRequiredPropertyException(desiredKey, this.path)
+        private fun YamlMap.getValue(desiredKey: String): YamlNode =
+            this[desiredKey] ?: throw MissingRequiredPropertyException(desiredKey, this.path)
 
-        private fun YamlMap.withoutKey(key: String): YamlMap
-                = this.copy(entries = entries.filterKeys { it.content != key })
+        private fun YamlMap.withoutKey(key: String): YamlMap =
+            this.copy(entries = entries.filterKeys { it.content != key })
 
     }
 
@@ -152,7 +198,8 @@ sealed class YamlI(
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class YamlScalarInput(val scalar: YamlScalar, context: SerializersModule, configuration: YamlConfiguration) : YamlI(scalar, context, configuration) {
+private class YamlScalarInput(val scalar: YamlScalar, context: SerializersModule, configuration: YamlConfiguration) :
+    YamlI(scalar, context, configuration) {
     override fun decodeString(): String = scalar.content
     override fun decodeInt(): Int = scalar.toInt()
     override fun decodeLong(): Long = scalar.toLong()
@@ -175,7 +222,11 @@ private class YamlScalarInput(val scalar: YamlScalar, context: SerializersModule
             .sorted()
             .joinToString(", ")
 
-        throw YamlScalarFormatException("Value ${scalar.contentToString()} is not a valid option, permitted choices are: $choices", scalar.path, scalar.content)
+        throw YamlScalarFormatException(
+            "Value ${scalar.contentToString()} is not a valid option, permitted choices are: $choices",
+            scalar.path,
+            scalar.content
+        )
     }
 
     override fun getCurrentLocation(): Location = scalar.location
@@ -185,12 +236,16 @@ private class YamlScalarInput(val scalar: YamlScalar, context: SerializersModule
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class YamlNullInput(val nullValue: YamlNode, context: SerializersModule, configuration: YamlConfiguration) : YamlI(nullValue, context, configuration) {
+private class YamlNullInput(val nullValue: YamlNode, context: SerializersModule, configuration: YamlConfiguration) :
+    YamlI(nullValue, context, configuration) {
     override fun decodeNotNullMark(): Boolean = false
 
     override fun decodeValue(): Any = throw UnexpectedNullValueException(nullValue.path)
-    override fun decodeCollectionSize(descriptor: SerialDescriptor): Int = throw UnexpectedNullValueException(nullValue.path)
-    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder = throw UnexpectedNullValueException(nullValue.path)
+    override fun decodeCollectionSize(descriptor: SerialDescriptor): Int =
+        throw UnexpectedNullValueException(nullValue.path)
+
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
+        throw UnexpectedNullValueException(nullValue.path)
 
     override fun getCurrentLocation(): Location = nullValue.location
     override fun getCurrentPath(): YamlPath = nullValue.path
@@ -199,7 +254,8 @@ private class YamlNullInput(val nullValue: YamlNode, context: SerializersModule,
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class YamlListInput(val list: YamlList, context: SerializersModule, configuration: YamlConfiguration) : YamlI(list, context, configuration) {
+private class YamlListInput(val list: YamlList, context: SerializersModule, configuration: YamlConfiguration) :
+    YamlI(list, context, configuration) {
     private var nextElementIndex = 0
     private lateinit var currentElementDecoder: YamlI
 
@@ -210,7 +266,12 @@ private class YamlListInput(val list: YamlList, context: SerializersModule, conf
             return CompositeDecoder.DECODE_DONE
         }
 
-        currentElementDecoder = createFor(list.items[nextElementIndex], serializersModule, configuration, descriptor.getElementDescriptor(0))
+        currentElementDecoder = createFor(
+            list.items[nextElementIndex],
+            serializersModule,
+            configuration,
+            descriptor.getElementDescriptor(0)
+        )
 
         return nextElementIndex++
     }
@@ -256,8 +317,11 @@ private class YamlListInput(val list: YamlList, context: SerializersModule, conf
     override fun getCurrentLocation(): Location = getCurrentPath().endLocation
 }
 
-private class YamlContextualInput(node: YamlNode, context: SerializersModule, configuration: YamlConfiguration) : YamlI(node, context, configuration) {
-    override fun decodeElementIndex(descriptor: SerialDescriptor): Int = throw IllegalStateException("Must call beginStructure() and use returned Decoder")
+private class YamlContextualInput(node: YamlNode, context: SerializersModule, configuration: YamlConfiguration) :
+    YamlI(node, context, configuration) {
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int =
+        throw IllegalStateException("Must call beginStructure() and use returned Decoder")
+
     override fun decodeValue(): Any = throw IllegalStateException("Must call beginStructure() and use returned Decoder")
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder =
@@ -267,7 +331,8 @@ private class YamlContextualInput(node: YamlNode, context: SerializersModule, co
     override fun getCurrentPath(): YamlPath = node.path
 }
 
-private sealed class YamlMapLikeInputBase(map: YamlMap, context: SerializersModule, configuration: YamlConfiguration) : YamlI(map, context, configuration) {
+private sealed class YamlMapLikeInputBase(map: YamlMap, context: SerializersModule, configuration: YamlConfiguration) :
+    YamlI(map, context, configuration) {
     protected lateinit var currentValueDecoder: YamlI
     protected lateinit var currentKey: YamlScalar
     protected var currentlyReadingValue = false
@@ -315,7 +380,8 @@ private sealed class YamlMapLikeInputBase(map: YamlMap, context: SerializersModu
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class YamlMapInput(map: YamlMap, context: SerializersModule, configuration: YamlConfiguration) : YamlMapLikeInputBase(map, context, configuration) {
+private class YamlMapInput(map: YamlMap, context: SerializersModule, configuration: YamlConfiguration) :
+    YamlMapLikeInputBase(map, context, configuration) {
     private val entriesList = map.entries.entries.toList()
     private var nextIndex = 0
     private lateinit var currentEntry: Map.Entry<YamlScalar, YamlNode>
@@ -328,7 +394,7 @@ private class YamlMapInput(map: YamlMap, context: SerializersModule, configurati
         currentKey = currentEntry.key
         currentlyReadingValue = nextIndex % 2 != 0
         currentValueDecoder = when (currentlyReadingValue) {
-            true  -> {
+            true -> {
                 try {
                     createFor(currentEntry.value, serializersModule, configuration, descriptor.getElementDescriptor(1))
                 } catch (exception: IncorrectTypeException) {
@@ -348,7 +414,8 @@ private class YamlMapInput(map: YamlMap, context: SerializersModule, configurati
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class YamlObjectInput(map: YamlMap, context: SerializersModule, configuration: YamlConfiguration) : YamlMapLikeInputBase(map, context, configuration) {
+private class YamlObjectInput(map: YamlMap, context: SerializersModule, configuration: YamlConfiguration) :
+    YamlMapLikeInputBase(map, context, configuration) {
     private val entriesList = map.entries.entries.toList()
     private var nextIndex = 0
 
@@ -372,7 +439,12 @@ private class YamlObjectInput(map: YamlMap, context: SerializersModule, configur
             }
 
             try {
-                currentValueDecoder = createFor(entriesList[nextIndex].value, serializersModule, configuration, descriptor.getElementDescriptor(fieldDescriptorIndex))
+                currentValueDecoder = createFor(
+                    entriesList[nextIndex].value,
+                    serializersModule,
+                    configuration,
+                    descriptor.getElementDescriptor(fieldDescriptorIndex)
+                )
             } catch (e: IncorrectTypeException) {
                 throw InvalidPropertyValueException(propertyName, e.message, e.path, e)
             }
@@ -402,7 +474,13 @@ private class YamlObjectInput(map: YamlMap, context: SerializersModule, configur
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private class YamlPolymorphicInput(private val typeName: String, private val typeNamePath: YamlPath, private val contentNode: YamlNode, context: SerializersModule, configuration: YamlConfiguration) : YamlI(contentNode, context, configuration) {
+private class YamlPolymorphicInput(
+    private val typeName: String,
+    private val typeNamePath: YamlPath,
+    private val contentNode: YamlNode,
+    context: SerializersModule,
+    configuration: YamlConfiguration
+) : YamlI(contentNode, context, configuration) {
     private var currentField = CurrentField.NotStarted
     private lateinit var contentDecoder: YamlI
 
@@ -419,7 +497,8 @@ private class YamlPolymorphicInput(private val typeName: String, private val typ
                 when (contentNode) {
                     is YamlScalar -> contentDecoder = YamlScalarInput(contentNode, serializersModule, configuration)
                     is YamlNull -> contentDecoder = YamlNullInput(contentNode, serializersModule, configuration)
-                    else -> {  }
+                    else -> {
+                    }
                 }
                 currentField = CurrentField.Content
                 1
@@ -428,7 +507,9 @@ private class YamlPolymorphicInput(private val typeName: String, private val typ
         }
     }
 
-    override fun decodeNotNullMark(): Boolean = maybeCallOnContent(blockOnType = { true }, blockOnContent = YamlI::decodeNotNullMark)
+    override fun decodeNotNullMark(): Boolean =
+        maybeCallOnContent(blockOnType = { true }, blockOnContent = YamlI::decodeNotNullMark)
+
     override fun decodeNull(): Nothing? = maybeCallOnContent("decodeNull", blockOnContent = YamlI::decodeNull)
     override fun decodeBoolean(): Boolean = maybeCallOnContent("decodeBoolean", blockOnContent = YamlI::decodeBoolean)
     override fun decodeByte(): Byte = maybeCallOnContent("decodeByte", blockOnContent = YamlI::decodeByte)
@@ -438,8 +519,11 @@ private class YamlPolymorphicInput(private val typeName: String, private val typ
     override fun decodeFloat(): Float = maybeCallOnContent("decodeFloat", blockOnContent = YamlI::decodeFloat)
     override fun decodeDouble(): Double = maybeCallOnContent("decodeDouble", blockOnContent = YamlI::decodeDouble)
     override fun decodeChar(): Char = maybeCallOnContent("decodeChar", blockOnContent = YamlI::decodeChar)
-    override fun decodeString(): String = maybeCallOnContent(blockOnType = { typeName }, blockOnContent = YamlI::decodeString)
-    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int = maybeCallOnContent("decodeEnum") { decodeEnum(enumDescriptor) }
+    override fun decodeString(): String =
+        maybeCallOnContent(blockOnType = { typeName }, blockOnContent = YamlI::decodeString)
+
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
+        maybeCallOnContent("decodeEnum") { decodeEnum(enumDescriptor) }
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         return when (currentField) {
@@ -452,7 +536,10 @@ private class YamlPolymorphicInput(private val typeName: String, private val typ
     }
 
     private inline fun <T> maybeCallOnContent(functionName: String, blockOnContent: YamlI.() -> T): T =
-        maybeCallOnContent(blockOnType = { throw UnsupportedOperationException("Can't call $functionName() on type field") }, blockOnContent = blockOnContent)
+        maybeCallOnContent(
+            blockOnType = { throw UnsupportedOperationException("Can't call $functionName() on type field") },
+            blockOnContent = blockOnContent
+        )
 
     private inline fun <T> maybeCallOnContent(blockOnType: () -> T, blockOnContent: YamlI.() -> T): T {
         return when (currentField) {
@@ -492,13 +579,20 @@ private class YamlPolymorphicInput(private val typeName: String, private val typ
         val knownTypes = mutableSetOf<String>()
 
         serializersModule.dumpTo(object : SerializersModuleCollector {
-            override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {  }
-            override fun <Base : Any, Sub : Base> polymorphic(baseClass: KClass<Base>, actualClass: KClass<Sub>, actualSerializer: KSerializer<Sub>) {
+            override fun <T : Any> contextual(kClass: KClass<T>, serializer: KSerializer<T>) {}
+            override fun <Base : Any, Sub : Base> polymorphic(
+                baseClass: KClass<Base>,
+                actualClass: KClass<Sub>,
+                actualSerializer: KSerializer<Sub>
+            ) {
                 if (baseClass.simpleName == className)
                     knownTypes.add(actualSerializer.descriptor.serialName)
             }
 
-            override fun <Base : Any> polymorphicDefault(baseClass: KClass<Base>, defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?) {
+            override fun <Base : Any> polymorphicDefault(
+                baseClass: KClass<Base>,
+                defaultSerializerProvider: (className: String?) -> DeserializationStrategy<out Base>?
+            ) {
                 throw UnsupportedOperationException("This method should never be called")
             }
         })
@@ -512,7 +606,8 @@ private class YamlPolymorphicInput(private val typeName: String, private val typ
     }
 
     companion object {
-        private val unknownPolymorphicTypeExceptionMessage: Regex = """^Class '(.*)' is not registered for polymorphic serialization in the scope of '(.*)'.\nMark the base class as 'sealed' or register the serializer explicitly.$""".toRegex()
+        private val unknownPolymorphicTypeExceptionMessage: Regex =
+            """^Class '(.*)' is not registered for polymorphic serialization in the scope of '(.*)'.\nMark the base class as 'sealed' or register the serializer explicitly.$""".toRegex()
     }
 }
 
@@ -558,7 +653,9 @@ internal class YamlO(
         emitter.emit(DocumentStartEvent(false, Optional.empty(), emptyMap()))
     }
 
-    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean = configuration.encodeDefaults
+    override fun shouldEncodeElementDefault(descriptor: SerialDescriptor, index: Int): Boolean =
+        configuration.encodeDefaults
+
     override fun encodeNull() = emitPlainScalar("null")
     override fun encodeBoolean(value: Boolean) = emitPlainScalar(value.toString())
     override fun encodeByte(value: Byte) = emitPlainScalar(value.toString())
@@ -577,7 +674,8 @@ internal class YamlO(
         }
     }
 
-    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = emitQuotedScalar(enumDescriptor.getElementName(index))
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) =
+        emitQuotedScalar(enumDescriptor.getElementName(index))
 
     private fun emitPlainScalar(value: String) = emitScalar(value, ScalarStyle.PLAIN)
     private fun emitQuotedScalar(value: String) = emitScalar(value, ScalarStyle.DOUBLE_QUOTED)
@@ -592,7 +690,8 @@ internal class YamlO(
         when (descriptor.kind) {
             StructureKind.LIST -> emitter.emit(SequenceEndEvent())
             StructureKind.MAP, StructureKind.CLASS, StructureKind.OBJECT -> emitter.emit(MappingEndEvent())
-            else -> {  }
+            else -> {
+            }
         }
     }
 

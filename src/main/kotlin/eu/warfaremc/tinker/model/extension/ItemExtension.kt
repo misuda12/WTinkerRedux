@@ -38,7 +38,7 @@ inline fun <reified T : ItemMeta> ItemStack.meta(body: T.() -> Unit) {
 }
 
 fun ItemStack.isOfType(type: String?): Boolean {
-    if(type == null)
+    if (type == null)
         return false
     return this.type.name.contains("_${type.toUpperCase()}")
 }
