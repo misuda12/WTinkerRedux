@@ -1,1 +1,0 @@
-package eu.warfaremc.tinker.miscellaneous;

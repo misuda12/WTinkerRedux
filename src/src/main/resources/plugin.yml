@@ -1,0 +1,11 @@
+name: ${pluginName}
+main: eu.warfaremc.tinker.WTinkerRedux
+version: ${pluginApiVersion}
+website: https://warfaremc.eu/plugins/${rootName}
+authors: [VoidAngel, Mirayi_, misuda12, WattMann]
+description: ${pluginDescription}
+api-version: 1.16
+depend:
+  - Slimefun
+softdepend:
+  - PlaceholderAPI

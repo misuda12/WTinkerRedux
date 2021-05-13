@@ -1,9 +1,0 @@
-name: WarfareTinkerRedux
-main: eu.warfaremc.tinker.TinkerRedux
-version: 1.0-SNAPSHOT
-api-version: 1.16
-repository: "misuda12/WTinkerRedux"
-description: "Slimefun4 extension plugin used by @WarfareMC"
-depend:
-  - Slimefun
-authors: [VoidAngel, Mirayi_, misuda12, WattMann]
