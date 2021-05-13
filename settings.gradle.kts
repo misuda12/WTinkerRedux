@@ -9,4 +9,4 @@ pluginManagement {
     }
 }
 
-include("api", "common", "src")
+include("api", "common", "runtime")
