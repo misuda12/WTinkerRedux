@@ -52,9 +52,10 @@ allprojects {
     }
 
     dependencies {
-        compileOnly("org.spigotmc:spigot-api:$spigotApiVersion") {
-            exclude(group = "org.yaml", module = "snakeyaml")
+        api("io.github.microutils:kotlin-logging-jvm:2.0.6") {
+            exclude(group = "org.jetbrains.kotlin")
         }
+        compileOnly("org.spigotmc:spigot-api:$spigotApiVersion")
     }
 
     tasks.compileJava.get().options.encoding = "UTF-8"
@@ -65,7 +66,7 @@ allprojects {
 
 subprojects {
     val project            = this@subprojects
-    if (name == "src")     return@subprojects
+    if (name == "runtime") return@subprojects
     tasks {
         val sourcesJar by creating(Jar::class) {
             from(sourceSets["main"].allSource)
